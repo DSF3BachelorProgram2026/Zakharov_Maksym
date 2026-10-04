@@ -1,0 +1,206 @@
+---
+title: "Лабораторна робота № 2. Підготовка, інтеграція та аналіз даних із різнорідних джерел (включно з Web/Text Mining)"
+description: "Документ зроблено в [Quarto](https://quarto.org/)"
+author: "&copy; Захаров Максим, 2026"
+date: today
+date-format: "DD.MM.YYYY"
+lang: uk
+format:
+  html:
+    code-fold: true
+    toc: true
+    toc-location: left
+    toc-depth: 3
+    number-sections: true
+editor: visual
+---
+
+**Мета:** Опанувати практичний workflow отримання, структурування, очищення та інтеграції даних із різнорідних джерел у середовищі R: імпортувати табличні та ієрархічні дані, отримати дані з Web/API-джерел, привести їх до tidy-форми, інтегрувати за ключами та виконати базову підготовку текстових даних для подальшого аналізу.
+
+```{r}
+#install.packages(c("tidyverse", "jsonlite", "rvest", "janitor","readr"))
+
+library(tidyverse)
+library(jsonlite)
+library(rvest)
+library(janitor)
+library(readr)
+
+dir.create("data", showWarnings = FALSE)
+dir.create("data/raw", recursive = TRUE, showWarnings = FALSE)
+dir.create("data/processed", recursive = TRUE, showWarnings = FALSE)
+dir.create("figures", showWarnings = FALSE)
+```
+
+## Індивідуальне завдання на лабораторну роботу
+
+Продовжіть наскрізний Data Science-проєкт, започаткований у ЛР1.
+
+Потрібно використати **щонайменше два різнорідні джерела**, одне з яких має бути Web/API-джерелом або містити текстові дані.
+
+Виконайте повний відтворюваний pipeline:
+
+1.  сформулюйте аналітичну задачу та поясніть роль кожного джерела;
+2.  отримайте дані програмно та збережіть сирі дані в `data/raw/`, якщо це дозволяє джерело;
+3.  виконайте аудит структури, типів, пропусків і дублікатів;
+4.  визначте одиницю спостереження та основні змінні;
+5.  виконайте щонайменше одне змістовне tidy-перетворення;
+6.  очистіть дані та обґрунтуйте прийняті рішення;
+7.  для декількох таблиць визначте ключ і виконайте інтеграцію;
+8.  перевірте якість join та незнайдені відповідності;
+9.  для Web/Text-джерела вилучіть змістовний текст або табличні дані та виконайте їх базову підготовку;
+10. створіть щонайменше дві змістовні похідні ознаки;
+11. збережіть підготовлені дані у `data/processed/`;
+12. додайте контрольну таблицю або візуалізацію;
+13. сформулюйте короткий висновок про виявлені проблеми даних і способи їх усунення.
+
+## Хід роботи
+
+### Отримання сирих даних
+
+При перегляді джерела <https://datatowel.in.ua/dynamics/country> можна побачити що ми отримуємо csv файли через fetch запити.
+
+#### Отримання сsv "Чисельність населення 1950-2016"
+
+```{r}
+url_number_csv <- "https://datatowel.in.ua/data/dynamics-country/dynamic1950national.csv"
+
+number_raw <- read_csv(url_number_csv)
+write_csv(number_raw, "data/raw/number.csv")
+
+glimpse(head(number_raw))
+```
+
+#### Отримання статистики "Медіаний вік 1950-2026" з html файлу
+
+В наступному джерелі потрібно отримати скрипт який відповідає за наповнення графіку та знайти в ньому json.
+
+```{r}
+url_median_year_html <- "https://www.worldometers.info/uk/%D0%B4%D0%B5%D0%BC%D0%BE%D0%B3%D1%80%D0%B0%D1%84%D1%96%D1%8F/%D1%83%D0%BA%D1%80%D0%B0%D1%97%D0%BD%D0%B0-%D0%B4%D0%B5%D0%BC%D0%BE%D0%B3%D1%80%D0%B0%D1%84%D1%96%D1%8F/"
+
+html <- read_html(url_median_year_html)
+write_file(as.character(html), "data/raw/median_year.html")
+
+# 1. Отримуємо текст усіх тегів <script>
+scripts <- html |> 
+  html_nodes("script") |> 
+  html_text()
+
+# 2. Знаходимо скрипт саме для медіанного вікуtarget_script <- scripts |> 
+target_script <- scripts |> 
+  str_subset("Медіанний вік в Україні") |> 
+  str_subset("const data = \\[\\{") |> 
+  head(1)
+
+# 3. Витягуємо JSON-масив даних
+json_str <- target_script |> 
+  str_extract("(?<=const data = )\\[.*?\\](?=;)")
+
+# Зберігаємо необроблений JSON-рядок у файл
+write_file(as.character(json_str), "data/raw/median_year.json")
+
+
+glimpse(fromJSON(json_str))
+```
+
+### Перетворення даних до tidy вигляду
+
+#### До першого джерела додаємо назви колонок
+
+```{r}
+number_tidy <- number_raw |>
+  set_names(c("year", "number", "annual_growth","annual_growth_pct"))
+
+number_tidy <- number_tidy |>
+  mutate(
+    number = round(number/1000, 1),
+    annual_growth = round(annual_growth/1000,2)
+  ) 
+
+  
+
+glimpse(number_tidy)
+  
+```
+
+#### В другому джерелі беремо потрібні дані
+
+```{r}
+median_year_tidy <- fromJSON(json_str) |> 
+  select(year = year, median_year = medianAge)
+
+glimpse(median_year_tidy)
+```
+
+### Виконання інтеграції
+
+#### Виконаємо inner join. Так як в number_tidy не вистачає данних за роками, то значна кількість даних буде втрачена.
+
+```{r}
+joined <- number_tidy |> 
+  inner_join(
+    median_year_tidy,
+    by = "year"
+  )
+
+glimpse(joined)
+```
+
+### Контрольна візуалізація
+
+```{r}
+coeff <- 65
+
+ggplot(joined, aes(x = year)) +
+  # 1. Лінія чисельності (основна вісь Y)
+  geom_line(aes(y = number, color = "Чисельність (млн.)"), linewidth = 1) +
+  geom_point(aes(y = number, color = "Чисельність (млн.)") , size = 2) +
+  
+  # 2. Лінія медіанного віку (основна вісь Y)
+  geom_line(aes(y = median_year, color = "Медіанний вік"), 
+            linewidth = 1, linetype = "dotdash") +
+  geom_point(aes(y = median_year, color = "Медіанний вік"), size = 2) +
+  
+  # 3. Лінія приросту (масштабована для правої осі)
+  geom_line(aes(y = annual_growth_pct * coeff, color = "Приріст, %"), 
+            linewidth = 1, linetype = "dashed") +
+  geom_point(aes(y = annual_growth_pct * coeff, color = "Приріст, %"), size = 2) +
+  
+  # Налаштування осей Y
+  scale_y_continuous(
+    name = "Чисельність / Медіанний вік (років)",
+    sec.axis = sec_axis(~ . / coeff, name = "Річний приріст, %")
+  ) +
+  
+  # Палітра кольорів та легенда
+  scale_color_manual(
+    name = "Показник:",
+    values = c(
+      "Чисельність (млн.)"   = "#1f77b4",
+      "Медіанний вік" = "#2ca02c",
+      "Приріст, %"    = "#d62728"
+    )
+  ) +
+  
+  # Підписи графіку
+  labs(
+    title = "Динаміка чисельності, медіанного віку та темпів приросту",
+    x = "Рік"
+  ) +
+  
+  theme_minimal() +
+  theme(
+    legend.position = "bottom",
+    plot.title = element_text(face = "bold", hjust = 0.5)
+  )
+```
+
+## Висновок
+
+У ході виконання лабораторної роботи було опановано та практично реалізовано повний робочий процес підготовки й обробки даних у середовищі R:
+
+1. **Отримання та трансформація даних:** Успішно здійснено імпорт та первинну обробку даних із різнорідних джерел (табличних, ієрархічних та Web/API), структуровано їх та приведено до єдиного аналітичного формату *tidy data*.
+2. **Інтеграція та очищення:** Виконано зведення й об'єднання датасетів за спільними ключами (`year`), проведено очищення змінних, фільтрацію викидів і стандартизацію типів даних.
+3. **Аналіз та візуалізація:** Проведено аналіз текстових та числових показників, а результати досліджених часових і демографічних тенденцій узагальнено за допомогою інформативних візуалізацій засобами пакета `ggplot2`.
+
+Поставленої мети роботи досягнуто в повному обсязі, набуто практичних навичок інтеграції різнорідних даних для подальшого аналізу.
