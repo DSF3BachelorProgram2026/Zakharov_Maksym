@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="uk" xml:lang="uk"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="© Захаров Максим, 2026">
+<meta name="description" content="Документ зроблено в Quarto">
+
+<title>Лабораторна робота № 3. Розвідувальний аналіз і візуалізація даних</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="lab_3_files/libs/clipboard/clipboard.min.js"></script>
+<script src="lab_3_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="lab_3_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="lab_3_files/libs/quarto-html/popper.min.js"></script>
+<script src="lab_3_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="lab_3_files/libs/quarto-html/anchor.min.js"></script>
+<link href="lab_3_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="lab_3_files/libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="lab_3_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="lab_3_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="lab_3_files/libs/bootstrap/bootstrap-62e2d20df198e8a01bb734742f2e28cf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<style>html{ scroll-behavior: smooth; }</style>
+<link href="lab_3_files/libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+
+<script src="lab_3_files/libs/pagedtable-1.1/js/pagedtable.js"></script>
+
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#індивідуальне-завдання-на-лабораторну-роботу" id="toc-індивідуальне-завдання-на-лабораторну-роботу" class="nav-link active" data-scroll-target="#індивідуальне-завдання-на-лабораторну-роботу">Індивідуальне завдання на лабораторну роботу</a></li>
+  <li><a href="#аналітичні-запитання" id="toc-аналітичні-запитання" class="nav-link" data-scroll-target="#аналітичні-запитання">Аналітичні запитання</a></li>
+  <li><a href="#хід-роботи" id="toc-хід-роботи" class="nav-link" data-scroll-target="#хід-роботи">Хід роботи</a>
+  <ul class="collapse">
+  <li><a href="#крок-1.-підготовка-середовища" id="toc-крок-1.-підготовка-середовища" class="nav-link" data-scroll-target="#крок-1.-підготовка-середовища">Крок 1. Підготовка середовища</a></li>
+  <li><a href="#крок-2.-завантаження-підготовлених-даних" id="toc-крок-2.-завантаження-підготовлених-даних" class="nav-link" data-scroll-target="#крок-2.-завантаження-підготовлених-даних">Крок 2. Завантаження підготовлених даних</a></li>
+  <li><a href="#крок-3.-профіль-якості-та-типів-змінних" id="toc-крок-3.-профіль-якості-та-типів-змінних" class="nav-link" data-scroll-target="#крок-3.-профіль-якості-та-типів-змінних">Крок 3. Профіль якості та типів змінних</a></li>
+  <li><a href="#крок-4.-варіація-чисельність-населення" id="toc-крок-4.-варіація-чисельність-населення" class="nav-link" data-scroll-target="#крок-4.-варіація-чисельність-населення">Крок 4. Варіація: чисельність населення</a></li>
+  <li><a href="#крок-5.-варіація-коефіцієнт-народжуваності" id="toc-крок-5.-варіація-коефіцієнт-народжуваності" class="nav-link" data-scroll-target="#крок-5.-варіація-коефіцієнт-народжуваності">Крок 5. Варіація: коефіцієнт народжуваності</a></li>
+  <li><a href="#крок-6.-потенційні-аномалії" id="toc-крок-6.-потенційні-аномалії" class="nav-link" data-scroll-target="#крок-6.-потенційні-аномалії">Крок 6. Потенційні аномалії</a></li>
+  <li><a href="#крок-7.-коваріація-коефіцієнт-народжуваності-та-медіанний-вік" id="toc-крок-7.-коваріація-коефіцієнт-народжуваності-та-медіанний-вік" class="nav-link" data-scroll-target="#крок-7.-коваріація-коефіцієнт-народжуваності-та-медіанний-вік">Крок 7. Коваріація: коефіцієнт народжуваності та медіанний вік</a></li>
+  <li><a href="#крок-8.-коваріація-коефіцієнт-народжуваності-та-чисельність-населення" id="toc-крок-8.-коваріація-коефіцієнт-народжуваності-та-чисельність-населення" class="nav-link" data-scroll-target="#крок-8.-коваріація-коефіцієнт-народжуваності-та-чисельність-населення">Крок 8. Коваріація: коефіцієнт народжуваності та чисельність населення</a></li>
+  <li><a href="#крок-9.-змістовне-порівняння-груп-народжуваність-за-декадами" id="toc-крок-9.-змістовне-порівняння-груп-народжуваність-за-декадами" class="nav-link" data-scroll-target="#крок-9.-змістовне-порівняння-груп-народжуваність-за-декадами">Крок 9. Змістовне порівняння груп: народжуваність за декадами</a></li>
+  <li><a href="#крок-10.-перевірка-розвідувальних-гіпотез" id="toc-крок-10.-перевірка-розвідувальних-гіпотез" class="nav-link" data-scroll-target="#крок-10.-перевірка-розвідувальних-гіпотез">Крок 10. Перевірка розвідувальних гіпотез</a></li>
+  <li><a href="#крок-11.-побудова-фінальної-аналітичної-таблиці" id="toc-крок-11.-побудова-фінальної-аналітичної-таблиці" class="nav-link" data-scroll-target="#крок-11.-побудова-фінальної-аналітичної-таблиці">Крок 11. Побудова фінальної аналітичної таблиці</a></li>
+  <li><a href="#крок-12.-відтворюваність" id="toc-крок-12.-відтворюваність" class="nav-link" data-scroll-target="#крок-12.-відтворюваність">Крок 12. Відтворюваність</a></li>
+  </ul></li>
+  <li><a href="#висновок" id="toc-висновок" class="nav-link" data-scroll-target="#висновок">Висновок</a></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Лабораторна робота № 3. Розвідувальний аналіз і візуалізація даних</h1>
+</div>
+
+<div>
+  <div class="description">
+    Документ зроблено в <a href="https://quarto.org/">Quarto</a>
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>© Захаров Максим, 2026 </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">26.10.2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><strong>Мета:</strong> Опанувати відтворюваний процес розвідувального аналізу даних (Exploratory Data Analysis, EDA) на підготовлених у ЛР2 наборах: дослідити варіацію та коваріацію змінних, описати розподіли статистиками та графіками, виявити потенційні аномалії, сформулювати й попередньо перевірити розвідувальні гіпотези та підготувати інтерпретовані візуалізації.</p>
+<section id="індивідуальне-завдання-на-лабораторну-роботу" class="level2">
+<h2 class="anchored" data-anchor-id="індивідуальне-завдання-на-лабораторну-роботу">Індивідуальне завдання на лабораторну роботу</h2>
+<p>Дані — демографічний набір щодо України за 1950–2026 рр. (Worldometer, отриманий через html/json mining у ЛР2, файл <code>data/raw/median_year.json</code>).</p>
+<p>Виконані пункти індивідуального завдання:</p>
+<ol type="1">
+<li>сформульовано три аналітичні запитання (розділ «Аналітичні запитання»);</li>
+<li>для двох кількісних змінних (<code>total</code>, <code>fertilityRate</code>) побудовано описи розподілу (числові статистики та графіки);</li>
+<li>знайдено потенційні аномалії для кількісних ознак (правило 1.5·IQR + змістовний аналіз різких стрибків);</li>
+<li>досліджено зв’язки між змінними (<code>fertilityRate</code> vs <code>medianAge</code>; <code>fertilityRate</code> vs <code>total</code>) та порівняно розподіли між декадами;</li>
+<li>сформульовано дві робочі гіпотези з графічними/числовими свідченнями й обмеженнями;</li>
+<li>створено підсумкову аналітичну таблицю та збережено п’ять графіків у <code>figures/</code>;</li>
+<li>написано висновок.</li>
+</ol>
+</section>
+<section id="аналітичні-запитання" class="level2">
+<h2 class="anchored" data-anchor-id="аналітичні-запитання">Аналітичні запитання</h2>
+<ol type="1">
+<li><strong>Варіація чисельності.</strong> Як змінювалась і наскільки сильно варіювала чисельність населення України (<code>total</code>) протягом 1950–2026 рр.?</li>
+<li><strong>Варіація та аномалії народжуваності.</strong> Який рівень народжуваності (<code>fertilityRate</code>) є типовим, чи є нетипові (аномальні) значення та які?</li>
+<li><strong>Коваріація та групи.</strong> Чи пов’язане зниження народжуваності зі старінням населення (<code>medianAge</code>), з динамікою чисельності населення (<code>total</code>) і чи відрізняється народжуваність між десятиліттями?</li>
+</ol>
+</section>
+<section id="хід-роботи" class="level2">
+<h2 class="anchored" data-anchor-id="хід-роботи">Хід роботи</h2>
+<section id="крок-1.-підготовка-середовища" class="level3">
+<h3 class="anchored" data-anchor-id="крок-1.-підготовка-середовища">Крок 1. Підготовка середовища</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#install.packages(c("tidyverse", "jsonlite"))</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(jsonlite)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">"figures"</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">"data/processed"</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="крок-2.-завантаження-підготовлених-даних" class="level3">
+<h3 class="anchored" data-anchor-id="крок-2.-завантаження-підготовлених-даних">Крок 2. Завантаження підготовлених даних</h3>
+<p>У ЛР2 дані отримані з Worldometer і збережені у <code>data/raw/median_year.json</code>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>demo_path <span class="ot">&lt;-</span> <span class="st">"data/raw/median_year.json"</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(demo_path)) {</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stop</span>(<span class="st">"Не знайдено файл"</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>demo_all <span class="ot">&lt;-</span> <span class="fu">fromJSON</span>(demo_path)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>demo <span class="ot">&lt;-</span> demo_all <span class="sc">|&gt;</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(year, total, medianAge, fertilityRate, urban, migrantNet, yearlyGrowthRate) <span class="sc">|&gt;</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">total_mln =</span> <span class="fu">round</span>(total <span class="sc">/</span> <span class="dv">1000000</span>, <span class="dv">2</span>))</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>demo</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["year"],"name":[1],"type":["int"],"align":["right"]},{"label":["total"],"name":[2],"type":["int"],"align":["right"]},{"label":["medianAge"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["fertilityRate"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["urban"],"name":[5],"type":["int"],"align":["right"]},{"label":["migrantNet"],"name":[6],"type":["int"],"align":["right"]},{"label":["yearlyGrowthRate"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["total_mln"],"name":[8],"type":["dbl"],"align":["right"]}],"data":[{"1":"1950","2":"37310887","3":"26.423","4":"2.447","5":"13240665","6":"96287","7":"NA","8":"37.31","_rn_":"1"},{"1":"1955","2":"39859711","3":"27.520","4":"2.312","5":"16557439","6":"130668","7":"0.013725217","8":"39.86","_rn_":"2"},{"1":"1960","2":"42824093","3":"28.342","4":"2.285","5":"19962621","6":"52281","7":"0.013725483","8":"42.82","_rn_":"3"},{"1":"1965","2":"45386892","3":"29.125","4":"1.943","5":"22924810","6":"69354","7":"0.009693544","8":"45.39","_rn_":"4"},{"1":"1970","2":"47261306","3":"31.262","4":"2.078","5":"25817971","6":"-48335","7":"0.006067959","8":"47.26","_rn_":"5"},{"1":"1975","2":"48865229","3":"33.054","4":"2.049","5":"28469686","6":"15336","7":"0.005942350","8":"48.87","_rn_":"6"},{"1":"1980","2":"49955152","3":"32.510","4":"1.949","5":"30827293","6":"47406","7":"0.004701619","8":"49.96","_rn_":"7"},{"1":"1985","2":"51108770","3":"32.733","4":"2.033","5":"32935869","6":"5546","7":"0.004346265","8":"51.11","_rn_":"8"},{"1":"1990","2":"52054092","3":"33.234","4":"1.845","5":"34356066","6":"75760","7":"0.002624821","8":"52.05","_rn_":"9"},{"1":"1995","2":"51665539","3":"34.507","4":"1.399","5":"34081946","6":"-134053","7":"-0.007881923","8":"51.67","_rn_":"10"},{"1":"2000","2":"49556660","3":"36.266","4":"1.108","5":"32793567","6":"-67865","7":"-0.008399677","8":"49.56","_rn_":"11"},{"1":"2005","2":"47585556","3":"37.741","4":"1.221","5":"31788197","6":"-111493","7":"-0.008210818","8":"47.59","_rn_":"12"},{"1":"2010","2":"46456003","3":"38.585","4":"1.436","5":"31411663","6":"16030","7":"-0.003597481","8":"46.46","_rn_":"13"},{"1":"2015","2":"45784896","3":"39.232","4":"1.387","5":"30840974","6":"-21992","7":"-0.004078188","8":"45.78","_rn_":"14"},{"1":"2020","2":"44680014","3":"40.793","4":"1.208","5":"30334632","6":"-4167","7":"-0.006171256","8":"44.68","_rn_":"15"},{"1":"2025","2":"38980376","3":"41.788","4":"0.997","5":"29923619","6":"1702358","7":"0.029586594","8":"38.98","_rn_":"16"},{"1":"2026","2":"39535849","3":"41.820","4":"1.004","5":"29844856","6":"-6229","7":"0.014250068","8":"39.54","_rn_":"17"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p><code>year</code> - рік.</p>
+<p><code>total</code> — чисельність населення.</p>
+<p><code>fertilityRate</code> — коефіцієнт народжуваності.</p>
+<p><code>medianAge</code> — медіанний вік населення.</p>
+<p><code>migrantNet</code> — міграція (нетто).</p>
+<p><code>urban</code> — частка населення, що проживає в міських районах.</p>
+<p><code>yearlyGrowthRate</code> - відносний приріст населення (yearlyGrowth / prevTotal).</p>
+<p>Перевіримо контракт даних: унікальність ключа <code>year</code>, коректність значень.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="sc">!</span><span class="fu">anyDuplicated</span>(demo<span class="sc">$</span>year),</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">all</span>(demo<span class="sc">$</span>total <span class="sc">&gt;=</span> <span class="dv">0</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">all</span>(demo<span class="sc">$</span>total_mln <span class="sc">&gt;=</span> <span class="dv">0</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">all</span>(demo<span class="sc">$</span>fertilityRate <span class="sc">&gt;</span> <span class="dv">0</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">all</span>(demo<span class="sc">$</span>medianAge <span class="sc">&gt;</span> <span class="dv">0</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Вибірка нерівномірна - до 2020 інтервали 5-річні, а 2026 стоїть за рік після 2025.</p>
+</section>
+<section id="крок-3.-профіль-якості-та-типів-змінних" class="level3">
+<h3 class="anchored" data-anchor-id="крок-3.-профіль-якості-та-типів-змінних">Крок 3. Профіль якості та типів змінних</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>quality <span class="ot">&lt;-</span> demo <span class="sc">|&gt;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_rows =</span> <span class="fu">n</span>(),</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">years_min =</span> <span class="fu">min</span>(year),</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">years_max =</span> <span class="fu">max</span>(year),</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">missing_total =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(total)),</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">missing_fert =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(fertilityRate)),</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">missing_age =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(medianAge)),</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">distinct_total =</span> <span class="fu">n_distinct</span>(total_mln),</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">distinct_fert =</span> <span class="fu">n_distinct</span>(fertilityRate),</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">distinct_age =</span> <span class="fu">n_distinct</span>(medianAge)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>quality</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["n_rows"],"name":[1],"type":["int"],"align":["right"]},{"label":["years_min"],"name":[2],"type":["int"],"align":["right"]},{"label":["years_max"],"name":[3],"type":["int"],"align":["right"]},{"label":["missing_total"],"name":[4],"type":["int"],"align":["right"]},{"label":["missing_fert"],"name":[5],"type":["int"],"align":["right"]},{"label":["missing_age"],"name":[6],"type":["int"],"align":["right"]},{"label":["distinct_total"],"name":[7],"type":["int"],"align":["right"]},{"label":["distinct_fert"],"name":[8],"type":["int"],"align":["right"]},{"label":["distinct_age"],"name":[9],"type":["int"],"align":["right"]}],"data":[{"1":"17","2":"1950","3":"2026","4":"0","5":"0","6":"0","7":"17","8":"17","9":"17"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>Усі три ключові кількісні змінні мають варіацію (більше ніж одне унікальне значення), пропусків немає.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>demo <span class="sc">|&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="fu">across</span>(</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(total_mln, fertilityRate, medianAge),</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(<span class="at">missing =</span> <span class="sc">~</span><span class="fu">sum</span>(<span class="fu">is.na</span>(.x)), <span class="at">distinct =</span> <span class="sc">~</span><span class="fu">n_distinct</span>(.x), <span class="at">sd =</span> <span class="sc">~</span><span class="fu">round</span>(<span class="fu">sd</span>(.x), <span class="dv">3</span>))</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  ))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["total_mln_missing"],"name":[1],"type":["int"],"align":["right"]},{"label":["total_mln_distinct"],"name":[2],"type":["int"],"align":["right"]},{"label":["total_mln_sd"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["fertilityRate_missing"],"name":[4],"type":["int"],"align":["right"]},{"label":["fertilityRate_distinct"],"name":[5],"type":["int"],"align":["right"]},{"label":["fertilityRate_sd"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["medianAge_missing"],"name":[7],"type":["int"],"align":["right"]},{"label":["medianAge_distinct"],"name":[8],"type":["int"],"align":["right"]},{"label":["medianAge_sd"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"0","2":"17","3":"4.689","4":"0","5":"17","6":"0.49","7":"0","8":"17","9":"5.006"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+</section>
+<section id="крок-4.-варіація-чисельність-населення" class="level3">
+<h3 class="anchored" data-anchor-id="крок-4.-варіація-чисельність-населення">Крок 4. Варіація: чисельність населення</h3>
+<p>Запитання: яка чисельність населення типова для цього набору і наскільки сильно вона змінюється?</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>demo <span class="sc">|&gt;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="fu">n</span>(),</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_total =</span> <span class="fu">mean</span>(total_mln),</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">median_total =</span> <span class="fu">median</span>(total_mln),</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">sd_total =</span> <span class="fu">sd</span>(total_mln),</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">iqr_total =</span> <span class="fu">IQR</span>(total_mln),</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">q1 =</span> <span class="fu">quantile</span>(total_mln, <span class="fl">0.25</span>),</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">q3 =</span> <span class="fu">quantile</span>(total_mln, <span class="fl">0.75</span>),</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">min_total =</span> <span class="fu">min</span>(total_mln),</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">max_total =</span> <span class="fu">max</span>(total_mln)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["n"],"name":[1],"type":["int"],"align":["right"]},{"label":["mean_total"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["median_total"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["sd_total"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["iqr_total"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["q1"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["q3"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["min_total"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["max_total"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"17","2":"45.81706","3":"46.46","4":"4.68853","5":"6.74","6":"42.82","7":"49.56","8":"37.31","9":"52.05"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>Оскільки це часовий ряд, структура залежності від часу важливіша за гістограму. Побудуємо спочатку лінійний графік, а потім гістограму для порівняння:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>p_total_line <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(demo, <span class="fu">aes</span>(<span class="at">x =</span> year, <span class="at">y =</span> total_mln, <span class="at">group =</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">"#6366f1"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"#6366f1"</span>, <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">1991</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"grey40"</span>) <span class="sc">+</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">2014</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"grey40"</span>)<span class="sc">+</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="dv">1991</span>, <span class="at">y =</span> <span class="dv">52</span>, <span class="at">label =</span> <span class="st">"1991 р."</span>, <span class="at">hjust =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="dv">2014</span>, <span class="at">y =</span> <span class="fl">47.5</span>, <span class="at">label =</span> <span class="st">"2014 р."</span>, <span class="at">hjust =</span> <span class="dv">0</span>)<span class="sc">+</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Чисельність населення України, 1950–2026"</span>,</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Рік"</span>,</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Чисельність, млн осіб"</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>p_total_line</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lab_3_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><em>Інтерпретація:</em> зростання 1950–1990 (від 37.3 млн до піку 52.05 млн у 1990), далі - тривале скорочення до 38.98 млн у 2025.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>p_total_hist <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(demo, <span class="fu">aes</span>(<span class="at">x =</span> total_mln)) <span class="sc">+</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="dv">2</span>, <span class="at">fill =</span> <span class="st">"#6366f1"</span>, <span class="at">colour =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Розподіл чисельності населення (без прив'язки до часу)"</span>,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Чисельність, млн осіб"</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Кількість спостережень"</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>p_total_hist</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lab_3_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Гістограма приховує хронологію - у ній змішані дві епохи (зростання і спад), тому для часових рядів обов’язково аналізується лінійний графік.</p>
+</section>
+<section id="крок-5.-варіація-коефіцієнт-народжуваності" class="level3">
+<h3 class="anchored" data-anchor-id="крок-5.-варіація-коефіцієнт-народжуваності">Крок 5. Варіація: коефіцієнт народжуваності</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>demo <span class="sc">|&gt;</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="fu">n</span>(),</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_fert =</span> <span class="fu">mean</span>(fertilityRate),</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">median_fert =</span> <span class="fu">median</span>(fertilityRate),</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">sd_fert =</span> <span class="fu">sd</span>(fertilityRate),</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">iqr_fert =</span> <span class="fu">IQR</span>(fertilityRate),</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">q1 =</span> <span class="fu">quantile</span>(fertilityRate, <span class="fl">0.25</span>),</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">q3 =</span> <span class="fu">quantile</span>(fertilityRate, <span class="fl">0.75</span>),</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">min_fert =</span> <span class="fu">min</span>(fertilityRate),</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">max_fert =</span> <span class="fu">max</span>(fertilityRate)</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["n"],"name":[1],"type":["int"],"align":["right"]},{"label":["mean_fert"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["median_fert"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["sd_fert"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["iqr_fert"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["q1"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["q3"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["min_fert"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["max_fert"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"17","2":"1.688294","3":"1.845","4":"0.490469","5":"0.828","6":"1.221","7":"2.049","8":"0.997","9":"2.447"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>p_fert_hist <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(demo, <span class="fu">aes</span>(<span class="at">x =</span> fertilityRate)) <span class="sc">+</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="fl">0.25</span>, <span class="at">fill =</span> <span class="st">"#10b981"</span>, <span class="at">colour =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Розподіл коефіцієнта народжуваності"</span>,</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Біном = 0.25 дитини на жінку"</span>,</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Коефіцієнт народжуваності"</span>,</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Кількість спостережень"</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>p_fert_hist</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lab_3_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><em>Інтерпретація:</em> Розподіл злегка лівосторонньо зміщений: більша частина спостережень у нижньому діапазоні (0.997–1.45), а невеликий хвіст праворуч (2.29–2.45 у 1950–1960).</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>p_fert_line <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(demo, <span class="fu">aes</span>(<span class="at">x =</span> year, <span class="at">y =</span> fertilityRate, <span class="at">group =</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">"#10b981"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"#10b981"</span>, <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="fl">2.1</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"#ef4444"</span>) <span class="sc">+</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Коефіцієнт народжуваності в Україні, 1950–2026"</span>,</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Рік"</span>,</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Коефіцієнт народжуваності"</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>p_fert_line</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lab_3_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><em>Інтерпретація:</em> останній раз народжуваність була вища за рівень простого відтворення у 1960 р. (2.285); з 1965 р. вона стабільно нижча за 2.1, а з 2000-х опускається до 1 і не піднімається вище 1.44.</p>
+</section>
+<section id="крок-6.-потенційні-аномалії" class="level3">
+<h3 class="anchored" data-anchor-id="крок-6.-потенційні-аномалії">Крок 6. Потенційні аномалії</h3>
+<p>Використаємо boxplot та правило <span class="math inline">\(1.5\,IQR\)</span>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>bounds <span class="ot">&lt;-</span> demo <span class="sc">|&gt;</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_low  =</span> <span class="fu">quantile</span>(total_mln, <span class="fl">0.25</span>) <span class="sc">-</span> <span class="fl">1.5</span> <span class="sc">*</span> <span class="fu">IQR</span>(total_mln),</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_high =</span> <span class="fu">quantile</span>(total_mln, <span class="fl">0.75</span>) <span class="sc">+</span> <span class="fl">1.5</span> <span class="sc">*</span> <span class="fu">IQR</span>(total_mln),</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">fert_low   =</span> <span class="fu">quantile</span>(fertilityRate, <span class="fl">0.25</span>) <span class="sc">-</span> <span class="fl">1.5</span> <span class="sc">*</span> <span class="fu">IQR</span>(fertilityRate),</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">fert_high  =</span> <span class="fu">quantile</span>(fertilityRate, <span class="fl">0.75</span>) <span class="sc">+</span> <span class="fl">1.5</span> <span class="sc">*</span> <span class="fu">IQR</span>(fertilityRate)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>outlier_candidates <span class="ot">&lt;-</span> demo <span class="sc">|&gt;</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    total_mln <span class="sc">&lt;</span> bounds<span class="sc">$</span>total_low <span class="sc">|</span> total_mln <span class="sc">&gt;</span> bounds<span class="sc">$</span>total_high <span class="sc">|</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    fertilityRate <span class="sc">&lt;</span> bounds<span class="sc">$</span>fert_low <span class="sc">|</span> fertilityRate <span class="sc">&gt;</span> bounds<span class="sc">$</span>fert_high</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(outlier_candidates)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>p_box_fert <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(demo, <span class="fu">aes</span>(<span class="at">y =</span> fertilityRate)) <span class="sc">+</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">fill =</span> <span class="st">"#c7d2fe"</span>) <span class="sc">+</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Пошук потенційно нетипових значень народжуваності"</span>,</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Коефіцієнт народжуваності"</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>p_box_fert</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lab_3_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Розрахуємо зміну чисельності між сусідніми спостереженнями.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>demo_change <span class="ot">&lt;-</span> demo <span class="sc">|&gt;</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_change =</span> total_mln <span class="sc">-</span> <span class="fu">lag</span>(total_mln),</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">interval_years =</span> year <span class="sc">-</span> <span class="fu">lag</span>(year)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(year, total_mln, interval_years, total_change) <span class="sc">|&gt;</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(total_change)) <span class="sc">|&gt;</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(<span class="fu">abs</span>(total_change)))</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>demo_change</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["year"],"name":[1],"type":["int"],"align":["right"]},{"label":["total_mln"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["interval_years"],"name":[3],"type":["int"],"align":["right"]},{"label":["total_change"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"2025","2":"38.98","3":"5","4":"-5.70"},{"1":"1960","2":"42.82","3":"5","4":"2.96"},{"1":"1965","2":"45.39","3":"5","4":"2.57"},{"1":"1955","2":"39.86","3":"5","4":"2.55"},{"1":"2000","2":"49.56","3":"5","4":"-2.11"},{"1":"2005","2":"47.59","3":"5","4":"-1.97"},{"1":"1970","2":"47.26","3":"5","4":"1.87"},{"1":"1975","2":"48.87","3":"5","4":"1.61"},{"1":"1985","2":"51.11","3":"5","4":"1.15"},{"1":"2010","2":"46.46","3":"5","4":"-1.13"},{"1":"2020","2":"44.68","3":"5","4":"-1.10"},{"1":"1980","2":"49.96","3":"5","4":"1.09"},{"1":"1990","2":"52.05","3":"5","4":"0.94"},{"1":"2015","2":"45.78","3":"5","4":"-0.68"},{"1":"2026","2":"39.54","3":"1","4":"0.56"},{"1":"1995","2":"51.67","3":"5","4":"-0.38"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p><em>Інтерпретація аномалій:</em> (1) 2025 — найбільше одноразове скорочення (−5.70 млн за період 2020–2025); (2) 2026 — єдиний з часів спаду рік приросту (+0.56 млн), який суперечить усій попередній динаміці. Не видаляємо ці рядки: правдоподібне пояснення — наслідки війни та можливі зміни методики обліку населення у джерелі (наприклад, урахування біженців, що перебувають за кордоном). Рядки позначаємо як «аномальні по суті, але реальні» і враховуємо це при інтерпретації трендів після 2020.</p>
+</section>
+<section id="крок-7.-коваріація-коефіцієнт-народжуваності-та-медіанний-вік" class="level3">
+<h3 class="anchored" data-anchor-id="крок-7.-коваріація-коефіцієнт-народжуваності-та-медіанний-вік">Крок 7. Коваріація: коефіцієнт народжуваності та медіанний вік</h3>
+<p>Спершу перевіримо, що обидві змінні змінюються:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>demo <span class="sc">|&gt;</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">distinct_fert =</span> <span class="fu">n_distinct</span>(fertilityRate),</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">distinct_age =</span> <span class="fu">n_distinct</span>(medianAge),</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">sd_fert =</span> <span class="fu">sd</span>(fertilityRate),</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">sd_age =</span> <span class="fu">sd</span>(medianAge)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["distinct_fert"],"name":[1],"type":["int"],"align":["right"]},{"label":["distinct_age"],"name":[2],"type":["int"],"align":["right"]},{"label":["sd_fert"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["sd_age"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"17","2":"17","3":"0.490469","4":"5.005545"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>Обидві змінні мають варіацію, отже кореляція обчислюється коректно:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>r_fert_age <span class="ot">&lt;-</span> <span class="fu">cor</span>(demo<span class="sc">$</span>medianAge, demo<span class="sc">$</span>fertilityRate)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>r_fert_age</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] -0.9343485</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>p_fert_age <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(demo, <span class="fu">aes</span>(<span class="at">x =</span> medianAge, <span class="at">y =</span> fertilityRate)) <span class="sc">+</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">"#ef4444"</span>, <span class="at">linewidth =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">color =</span> year), <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_viridis_c</span>() <span class="sc">+</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Коефіцієнт народжуваності та медіанний вік населення"</span>,</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Медіанний вік, років"</span>,</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Коефіцієнт народжуваності"</span>,</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"Рік"</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>p_fert_age</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lab_3_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><em>Інтерпретація:</em> Чим старіше населення, тим нижча народжуваність. Але обидві змінні монотонно змінюються з часом, тому частина зв’язку може бути «спільним трендом», а не причиною.</p>
+</section>
+<section id="крок-8.-коваріація-коефіцієнт-народжуваності-та-чисельність-населення" class="level3">
+<h3 class="anchored" data-anchor-id="крок-8.-коваріація-коефіцієнт-народжуваності-та-чисельність-населення">Крок 8. Коваріація: коефіцієнт народжуваності та чисельність населення</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>r_fert_total <span class="ot">&lt;-</span> <span class="fu">cor</span>(demo<span class="sc">$</span>total_mln, demo<span class="sc">$</span>fertilityRate)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>r_fert_total</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] -0.04889307</code></pre>
+</div>
+</div>
+</section>
+<section id="крок-9.-змістовне-порівняння-груп-народжуваність-за-декадами" class="level3">
+<h3 class="anchored" data-anchor-id="крок-9.-змістовне-порівняння-груп-народжуваність-за-декадами">Крок 9. Змістовне порівняння груп: народжуваність за декадами</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>demo <span class="ot">&lt;-</span> demo <span class="sc">|&gt;</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">decade =</span> <span class="fu">case_when</span>(</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>      year <span class="sc">&lt;</span> <span class="dv">1960</span> <span class="sc">~</span> <span class="st">"1950-ті"</span>,</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>      year <span class="sc">&lt;</span> <span class="dv">1970</span> <span class="sc">~</span> <span class="st">"1960-ті"</span>,</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>      year <span class="sc">&lt;</span> <span class="dv">1980</span> <span class="sc">~</span> <span class="st">"1970-ті"</span>,</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>      year <span class="sc">&lt;</span> <span class="dv">1990</span> <span class="sc">~</span> <span class="st">"1980-ті"</span>,</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>      year <span class="sc">&lt;</span> <span class="dv">2000</span> <span class="sc">~</span> <span class="st">"1990-ті"</span>,</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>      year <span class="sc">&lt;</span> <span class="dv">2010</span> <span class="sc">~</span> <span class="st">"2000-ті"</span>,</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>      year <span class="sc">&lt;</span> <span class="dv">2020</span> <span class="sc">~</span> <span class="st">"2010-ті"</span>,</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span>        <span class="sc">~</span> <span class="st">"2020-ті"</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">decade =</span> <span class="fu">factor</span>(decade, <span class="at">levels =</span> <span class="fu">unique</span>(decade))</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>demo <span class="sc">|&gt;</span> <span class="fu">count</span>(decade)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["decade"],"name":[1],"type":["fct"],"align":["left"]},{"label":["n"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"1950-ті","2":"2"},{"1":"1960-ті","2":"2"},{"1":"1970-ті","2":"2"},{"1":"1980-ті","2":"2"},{"1":"1990-ті","2":"2"},{"1":"2000-ті","2":"2"},{"1":"2010-ті","2":"2"},{"1":"2020-ті","2":"3"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>fert_by_decade <span class="ot">&lt;-</span> demo <span class="sc">|&gt;</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(decade) <span class="sc">|&gt;</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="fu">n</span>(),</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_fert =</span> <span class="fu">round</span>(<span class="fu">mean</span>(fertilityRate), <span class="dv">3</span>),</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">median_fert =</span> <span class="fu">round</span>(<span class="fu">median</span>(fertilityRate), <span class="dv">3</span>),</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">sd_fert =</span> <span class="fu">round</span>(<span class="fu">sd</span>(fertilityRate), <span class="dv">3</span>),</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>fert_by_decade</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["decade"],"name":[1],"type":["fct"],"align":["left"]},{"label":["n"],"name":[2],"type":["int"],"align":["right"]},{"label":["mean_fert"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["median_fert"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["sd_fert"],"name":[5],"type":["dbl"],"align":["right"]}],"data":[{"1":"1950-ті","2":"2","3":"2.380","4":"2.380","5":"0.095"},{"1":"1960-ті","2":"2","3":"2.114","4":"2.114","5":"0.242"},{"1":"1970-ті","2":"2","3":"2.063","4":"2.063","5":"0.021"},{"1":"1980-ті","2":"2","3":"1.991","4":"1.991","5":"0.059"},{"1":"1990-ті","2":"2","3":"1.622","4":"1.622","5":"0.315"},{"1":"2000-ті","2":"2","3":"1.165","4":"1.165","5":"0.080"},{"1":"2010-ті","2":"2","3":"1.412","4":"1.412","5":"0.035"},{"1":"2020-ті","2":"3","3":"1.070","4":"1.004","5":"0.120"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>p_fert_decade <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(demo, <span class="fu">aes</span>(<span class="at">x =</span> decade, <span class="at">y =</span> fertilityRate)) <span class="sc">+</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">fill =</span> <span class="st">"#c7d2fe"</span>) <span class="sc">+</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">width =</span> <span class="fl">0.08</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">color =</span> <span class="st">"#6366f1"</span>) <span class="sc">+</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Розподіл коефіцієнта народжуваності за декадами"</span>,</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Декада"</span>,</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Коефіцієнт народжуваності"</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">30</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>p_fert_decade</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lab_3_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><em>Питання для інтерпретації:</em> чи достатньо порівняти лише середні значення? Що додає boxplot? Які обмеження через вкрай малі групи?</p>
+</section>
+<section id="крок-10.-перевірка-розвідувальних-гіпотез" class="level3">
+<h3 class="anchored" data-anchor-id="крок-10.-перевірка-розвідувальних-гіпотез">Крок 10. Перевірка розвідувальних гіпотез</h3>
+<p>Дві робочі гіпотези, сформульовані за результатами EDA:</p>
+<p><strong>H1:</strong> зниження народжуваності пов’язане зі старінням населення (обернений зв’язок <code>fertilityRate</code> – <code>medianAge</code>).</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">r_fert_age =</span> r_fert_age)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>r_fert_age 
+-0.9343485 </code></pre>
+</div>
+</div>
+<p><em>Свідчення:</em> точкова діаграма з лінією регресії, <span class="math inline">\(r \approx -0.93\)</span> (Крок 7).</p>
+<p><strong>H2:</strong> після 1991 р. народжуваність системно нижча, ніж у радянський період.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>era_summary <span class="ot">&lt;-</span> demo <span class="sc">|&gt;</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">era =</span> <span class="fu">if_else</span>(year <span class="sc">&lt;</span> <span class="dv">1991</span>, <span class="st">"До 1991"</span>, <span class="st">"Після 1991"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(era) <span class="sc">|&gt;</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="fu">n</span>(),</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_fert =</span> <span class="fu">round</span>(<span class="fu">mean</span>(fertilityRate), <span class="dv">3</span>),</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">median_fert =</span> <span class="fu">round</span>(<span class="fu">median</span>(fertilityRate), <span class="dv">3</span>),</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>era_summary</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["era"],"name":[1],"type":["chr"],"align":["left"]},{"label":["n"],"name":[2],"type":["int"],"align":["right"]},{"label":["mean_fert"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["median_fert"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"До 1991","2":"9","3":"2.105","4":"2.049"},{"1":"Після 1991","2":"8","3":"1.220","4":"1.215"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p><em>Свідчення:</em> середнє до 1991 — 2.10, після — 1.22 (медіани 2.05 і 1.22); окремий boxplot (нижче) та boxplot за декадами (Крок 9) показують, що всі точки 1990-х і пізніших періодів лежать нижче фактично всіх точок 1950–1980-х. <em>Обмеження:</em> відмінність по групах може бути наслідком і структури віку, і соціально-економічних трансформацій.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>demo <span class="ot">&lt;-</span> demo <span class="sc">|&gt;</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">era =</span> <span class="fu">if_else</span>(year <span class="sc">&lt;</span> <span class="dv">1991</span>, <span class="st">"До 1991"</span>, <span class="st">"Після 1991"</span>))</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>p_era_box <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(demo, <span class="fu">aes</span>(<span class="at">x =</span> era, <span class="at">y =</span> fertilityRate, <span class="at">fill =</span> era)) <span class="sc">+</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">width =</span> <span class="fl">0.05</span>, <span class="at">alpha =</span> <span class="fl">0.6</span>, <span class="at">color =</span> <span class="st">"#6366f1"</span>) <span class="sc">+</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Народжуваність до та після 1991 р."</span>,</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Період"</span>,</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Коефіцієнт народжуваності"</span></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#6366f1"</span>, <span class="st">"#ef4444"</span>)) <span class="sc">+</span></span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>p_era_box</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lab_3_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="крок-11.-побудова-фінальної-аналітичної-таблиці" class="level3">
+<h3 class="anchored" data-anchor-id="крок-11.-побудова-фінальної-аналітичної-таблиці">Крок 11. Побудова фінальної аналітичної таблиці</h3>
+<p>Один рядок таблиці – одна декада. Не змінюємо зернистість без явного усвідомлення.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>eda_summary <span class="ot">&lt;-</span> demo <span class="sc">|&gt;</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(decade) <span class="sc">|&gt;</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="fu">n</span>(),</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_fert =</span> <span class="fu">round</span>(<span class="fu">mean</span>(fertilityRate), <span class="dv">3</span>),</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">median_fert =</span> <span class="fu">round</span>(<span class="fu">median</span>(fertilityRate), <span class="dv">3</span>),</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_total_mln =</span> <span class="fu">round</span>(<span class="fu">mean</span>(total_mln), <span class="dv">2</span>),</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">min_total_mln =</span> <span class="fu">min</span>(total_mln),</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">max_total_mln =</span> <span class="fu">max</span>(total_mln),</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(</span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nrow</span>(eda_summary) <span class="sc">==</span> <span class="dv">8</span>,</span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>  <span class="sc">!</span><span class="fu">anyDuplicated</span>(eda_summary<span class="sc">$</span>decade)</span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>eda_summary</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["decade"],"name":[1],"type":["fct"],"align":["left"]},{"label":["n"],"name":[2],"type":["int"],"align":["right"]},{"label":["mean_fert"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["median_fert"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["mean_total_mln"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["min_total_mln"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["max_total_mln"],"name":[7],"type":["dbl"],"align":["right"]}],"data":[{"1":"1950-ті","2":"2","3":"2.380","4":"2.380","5":"38.58","6":"37.31","7":"39.86"},{"1":"1960-ті","2":"2","3":"2.114","4":"2.114","5":"44.11","6":"42.82","7":"45.39"},{"1":"1970-ті","2":"2","3":"2.063","4":"2.063","5":"48.06","6":"47.26","7":"48.87"},{"1":"1980-ті","2":"2","3":"1.991","4":"1.991","5":"50.53","6":"49.96","7":"51.11"},{"1":"1990-ті","2":"2","3":"1.622","4":"1.622","5":"51.86","6":"51.67","7":"52.05"},{"1":"2000-ті","2":"2","3":"1.165","4":"1.165","5":"48.58","6":"47.59","7":"49.56"},{"1":"2010-ті","2":"2","3":"1.412","4":"1.412","5":"46.12","6":"45.78","7":"46.46"},{"1":"2020-ті","2":"3","3":"1.070","4":"1.004","5":"41.07","6":"38.98","7":"44.68"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(eda_summary, <span class="st">"data/processed/eda_summary_by_decade.csv"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Зберігаємо графіки:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">"figures/lab3_total_line.png"</span>,  p_total_line,  <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">5</span>)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">"figures/lab3_fertility_hist.png"</span>, p_fert_hist, <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">5</span>)</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">"figures/lab3_fert_vs_age.png"</span>, p_fert_age,    <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">5</span>)</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">"figures/lab3_fertility_boxplot_decade.png"</span>, p_fert_decade, <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">5</span>)</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">"figures/lab3_fertility_era.png"</span>, p_era_box,   <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="крок-12.-відтворюваність" class="level3">
+<h3 class="anchored" data-anchor-id="крок-12.-відтворюваність">Крок 12. Відтворюваність</h3>
+<p>Вихідні дані — <code>data/raw/median_year.json</code></p>
+<p>Похідні дані — <code>data/processed/eda_summary_by_decade.csv</code>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>R version 4.6.1 (2026-06-24 ucrt)
+Platform: x86_64-w64-mingw32/x64
+Running under: Windows 10 x64 (build 19044)
+
+Matrix products: default
+  LAPACK version 3.12.1
+
+locale:
+[1] LC_COLLATE=Russian_Russia.utf8  LC_CTYPE=Russian_Russia.utf8   
+[3] LC_MONETARY=Russian_Russia.utf8 LC_NUMERIC=C                   
+[5] LC_TIME=Russian_Russia.utf8    
+
+time zone: Europe/Kiev
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+ [1] jsonlite_2.0.0  lubridate_1.9.5 forcats_1.0.1   stringr_1.6.0  
+ [5] dplyr_1.2.1     purrr_1.2.2     readr_2.2.0     tidyr_1.3.2    
+ [9] tibble_3.3.1    ggplot2_4.0.3   tidyverse_2.0.0
+
+loaded via a namespace (and not attached):
+ [1] generics_0.1.4     stringi_1.8.9      lattice_0.23-1     hms_1.1.4         
+ [5] digest_0.6.39      magrittr_2.0.5     evaluate_1.0.5     grid_4.6.1        
+ [9] timechange_0.4.0   RColorBrewer_1.1-3 fastmap_1.2.0      Matrix_1.7-6      
+[13] mgcv_1.9-4         viridisLite_0.4.3  scales_1.4.0       textshaping_1.0.5 
+[17] cli_3.6.6          crayon_1.5.3       rlang_1.3.0        bit64_4.8.6       
+[21] splines_4.6.1      withr_3.0.3        yaml_2.3.12        otel_0.2.0        
+[25] parallel_4.6.1     tools_4.6.1        tzdb_0.5.0         vctrs_0.7.3       
+[29] R6_2.6.1           lifecycle_1.0.5    bit_4.6.0          vroom_1.7.1       
+[33] ragg_1.5.2         pkgconfig_2.0.3    pillar_1.11.1      gtable_0.3.6      
+[37] glue_1.8.1         systemfonts_1.3.2  xfun_0.60          tidyselect_1.2.1  
+[41] rstudioapi_0.19.0  knitr_1.52         farver_2.1.2       htmltools_0.5.9   
+[45] nlme_3.1-171       rmarkdown_2.32     labeling_0.4.3     compiler_4.6.1    
+[49] S7_0.2.2          </code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="висновок" class="level2">
+<h2 class="anchored" data-anchor-id="висновок">Висновок</h2>
+<p>У ході виконання лабораторної роботи опановано повний цикл розвідувального аналізу даних (EDA):</p>
+<ol type="1">
+<li><strong>Варіація та розподіли:</strong> досліджено дві кількісні змінні – <code>total</code> (середнє 45.82 млн, sd 4.69, розкид від 37.3 до 52.05 млн) та <code>fertilityRate</code> (середнє 1.69, sd 0.49, від 0.997 до 2.447). Показано, що гістограма маскує часову структуру, тому для часових рядів основний аналітичний графік – лінійна діаграма.</li>
+<li><strong>Аномалії:</strong> за правилом <span class="math inline">\(1.5IQR\)</span> кандидатів не знайдено, але змістовний аналіз різких стрибків виявив підозрілі точки (2025 — найбільше одноразове скорочення населення −5.70 млн, 2026 — єдиний від часів спаду рік приросту +0.56 млн). Рядки не видалено, а позначено як аномальні по суті та пов’язані з війною і можливою зміною методики обліку у джерелі.</li>
+<li><strong>Коваріація та групи:</strong> встановлено сильний обернений зв’язок народжуваності з медіанним віком (<span class="math inline">\(r \approx -0.93\)</span>), майже нульову лінійну асоціацію народжуваності з чисельністю населення (<span class="math inline">\(r \approx 0\)</span>, пояснено зсувом фаз двох часових тенденцій), а також системне зниження медіан народжуваності від 2.38 (1950-ті) до ~1.0 (2020-ті).</li>
+<li><strong>Гіпотези та обмеження:</strong> сформульовано дві розвідувальні гіпотези (зв’язок народжуваність–старіння; зниження народжуваності після 1991), для кожної вказано свідчення, обмеження (малий n, часові конфаундери, агреговані оцінки джерела) і наступний крок перевірки.</li>
+</ol>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<script src="lab_3_files/libs/quarto-html/zenscroll-min.js"></script>
+</body></html>
