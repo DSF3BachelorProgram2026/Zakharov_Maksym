@@ -1,0 +1,82 @@
+---
+title: "Лабораторна робота №5. Побудова регресійних моделей"
+description: "Документ зроблено в [Quarto](https://quarto.org/)"
+author: "&copy; Захаров Максим, 2026"
+date: today
+date-format: "DD.MM.YYYY"
+lang: uk
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    theme: cosmo
+    smooth-scroll: true
+    code-fold: false
+    df-print: paged
+execute:
+  echo: true
+  warning: false
+  message: false
+editor: source
+---
+
+## Хід роботи
+```{r}
+#install.packages(c("tidyverse", "jsonlite"))
+#install.packages("GGally")
+
+library(GGally)
+library(tidyverse)
+library(jsonlite)
+
+dir.create("figures", showWarnings = FALSE)
+dir.create("data/processed", recursive = TRUE, showWarnings = FALSE)
+```
+### Крок 1. Завантаження підготовлених даних
+
+```{r}
+demo_path <- "data/raw/median_year.json"
+
+if (!file.exists(demo_path)) {
+  stop("Не знайдено файл")
+}
+
+demo_all <- fromJSON(demo_path)
+
+data <- demo_all |>
+  select(year, medianAge, fertilityRate)
+
+data
+```
+### Крок 2. Опис метаданих
+
+`year`          - рік.
+
+`fertilityRate` — коефіцієнт народжуваності ((кількість живонароджених за рік / середня чисельність населення) × 1000).
+
+`medianAge` - медіанний вік населення (вік, що ділить населення на дві рівні половини).
+
+```{r}
+data |>
+  select(medianAge, fertilityRate, year) |>
+  cor() |>
+  knitr::kable(
+    caption = "Таблиця оцінок коефіцієнтів кореляції"
+  )
+```
+
+```{r}
+data |>
+  select(year,medianAge:fertilityRate) |>
+  ggpairs()
+```
+
+```{r}
+model <- lm(medianAge~fertilityRate, data = data)
+summary(model)
+```
+
+```{r}
+plot(model)
+```
+
