@@ -9,7 +9,7 @@
 <meta name="author" content="© Захаров Максим, 2026">
 <meta name="description" content="Документ зроблено в Quarto">
 
-<title>Лабораторна робота №5. Побудова регресійних моделей</title>
+<title>Лабораторна робота №6. Побудова регресійних моделей і прогнозування</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -98,6 +98,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#крок-1.-завантаження-підготовлених-даних" id="toc-крок-1.-завантаження-підготовлених-даних" class="nav-link" data-scroll-target="#крок-1.-завантаження-підготовлених-даних">Крок 1. Завантаження підготовлених даних</a></li>
   <li><a href="#крок-2.-опис-метаданих" id="toc-крок-2.-опис-метаданих" class="nav-link" data-scroll-target="#крок-2.-опис-метаданих">Крок 2. Опис метаданих</a></li>
+  <li><a href="#крок-3.-побудуємо-лінію-тренда" id="toc-крок-3.-побудуємо-лінію-тренда" class="nav-link" data-scroll-target="#крок-3.-побудуємо-лінію-тренда">Крок 3. Побудуємо лінію тренда</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -106,7 +107,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Лабораторна робота №5. Побудова регресійних моделей</h1>
+<h1 class="title">Лабораторна робота №6. Побудова регресійних моделей і прогнозування</h1>
 </div>
 
 <div>
@@ -128,7 +129,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">26.10.2026</p>
+      <p class="date">27.10.2026</p>
     </div>
   </div>
   
@@ -223,6 +224,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </table>
 </div>
 </div>
+<p>З таблиці видно, що між <code>fertilityRate</code> та <code>medianAge</code> існує сильний від’ємний зв’язок: чим нижча народжуваність, тим старіше населення.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>data <span class="sc">|&gt;</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(year,medianAge<span class="sc">:</span>fertilityRate) <span class="sc">|&gt;</span></span>
@@ -259,6 +261,7 @@ Multiple R-squared:  0.873, Adjusted R-squared:  0.8645
 F-statistic: 103.1 on 1 and 15 DF,  p-value: 4.082e-08</code></pre>
 </div>
 </div>
+<p>Рівняння моделі: <code>medianAge</code> = b0 + b1 × <code>fertilityRate</code>. Коефіцієнт b₁ від’ємний - зі зниженням народжуваності на 1 пункт медіанний вік зростає приблизно на |b1| років.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(model)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
@@ -290,6 +293,44 @@ F-statistic: 103.1 on 1 and 15 DF,  p-value: 4.082e-08</code></pre>
 </div>
 </div>
 </div>
+<p>Діагностика моделі: графік «Residuals vs Fitted» перевіряє лінійність (точки мають розподілятися хаотично навколо нульової лінії), Q-Q графік - нормальність залишків (точки мають лежати на діагоналі), «Scale-Location» - гомоскедастичність (постійність дисперсії), а останній графік показує вплив окремих спостережень.</p>
+</section>
+<section id="крок-3.-побудуємо-лінію-тренда" class="level3">
+<h3 class="anchored" data-anchor-id="крок-3.-побудуємо-лінію-тренда">Крок 3. Побудуємо лінію тренда</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">"figures"</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Народжуваність</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(data, <span class="fu">aes</span>(year, fertilityRate)) <span class="sc">+</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">colour =</span> <span class="st">"#E69F00"</span>) <span class="sc">+</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">colour =</span> <span class="st">"#E69F00"</span>, <span class="at">se =</span> <span class="cn">TRUE</span>, <span class="at">fullrange =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Коеф. народжуваності"</span>, <span class="at">x =</span> <span class="st">"Рік"</span>, <span class="at">y =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lab_6_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">"figures/forecast_fertility.png"</span>, <span class="at">width =</span> <span class="dv">7</span>, <span class="at">height =</span> <span class="dv">4</span>, <span class="at">dpi =</span> <span class="dv">150</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Медіанний вік</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(data, <span class="fu">aes</span>(year, medianAge)) <span class="sc">+</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">colour =</span> <span class="st">"#0072B2"</span>) <span class="sc">+</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">colour =</span> <span class="st">"#0072B2"</span>, <span class="at">se =</span> <span class="cn">TRUE</span>, <span class="at">fullrange =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Медіанний вік"</span>, <span class="at">x =</span> <span class="st">"Рік"</span>, <span class="at">y =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lab_6_files/figure-html/unnamed-chunk-7-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">"figures/forecast_median_age.png"</span>, <span class="at">width =</span> <span class="dv">7</span>, <span class="at">height =</span> <span class="dv">4</span>, <span class="at">dpi =</span> <span class="dv">150</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Відповідно до моделі, народжуваність продовжить знижуватися, а медіанний вік — зростати, тобто населення старітиме.</p>
 </section>
 </section>
 

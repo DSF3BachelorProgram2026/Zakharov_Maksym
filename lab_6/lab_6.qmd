@@ -1,5 +1,5 @@
 ---
-title: "Лабораторна робота №5. Побудова регресійних моделей"
+title: "Лабораторна робота №6. Побудова регресійних моделей і прогнозування"
 description: "Документ зроблено в [Quarto](https://quarto.org/)"
 author: "&copy; Захаров Максим, 2026"
 date: today
@@ -65,18 +65,51 @@ data |>
   )
 ```
 
+З таблиці видно, що між `fertilityRate` та `medianAge` існує сильний від'ємний зв'язок: чим нижча народжуваність, тим старіше населення.
+
 ```{r}
 data |>
   select(year,medianAge:fertilityRate) |>
   ggpairs()
 ```
 
+
 ```{r}
 model <- lm(medianAge~fertilityRate, data = data)
 summary(model)
 ```
 
+Рівняння моделі: `medianAge` = b0 + b1 × `fertilityRate`. Коефіцієнт b₁ від'ємний - зі зниженням народжуваності на 1 пункт медіанний вік зростає приблизно на |b1| років.
+
 ```{r}
 plot(model)
 ```
+
+Діагностика моделі: графік «Residuals vs Fitted» перевіряє лінійність (точки мають розподілятися хаотично навколо нульової лінії), Q-Q графік - нормальність залишків (точки мають лежати на діагоналі), «Scale-Location» - гомоскедастичність (постійність дисперсії), а останній графік показує вплив окремих спостережень.
+
+### Крок 3. Побудуємо лінію тренда
+
+```{r}
+dir.create("figures", showWarnings = FALSE)
+
+# Народжуваність
+ggplot(data, aes(year, fertilityRate)) +
+  geom_point(colour = "#E69F00") +
+  geom_smooth(method = "lm", colour = "#E69F00", se = TRUE, fullrange = TRUE) +
+  labs(title = "Коеф. народжуваності", x = "Рік", y = NULL) +
+  theme_minimal()
+
+ggsave("figures/forecast_fertility.png", width = 7, height = 4, dpi = 150)
+
+# Медіанний вік
+ggplot(data, aes(year, medianAge)) +
+  geom_point(colour = "#0072B2") +
+  geom_smooth(method = "lm", colour = "#0072B2", se = TRUE, fullrange = TRUE) +
+  labs(title = "Медіанний вік", x = "Рік", y = NULL) +
+  theme_minimal()
+
+ggsave("figures/forecast_median_age.png", width = 7, height = 4, dpi = 150)
+```
+
+ Відповідно до моделі, народжуваність продовжить знижуватися, а медіанний вік — зростати, тобто населення старітиме.
 
