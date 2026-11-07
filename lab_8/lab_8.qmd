@@ -1,0 +1,119 @@
+---
+title: "Лабораторна робота № 8. Побудова ARIMA-моделі часового ряду і прогнозування на її основі"
+description: "Документ зроблено в [Quarto](https://quarto.org/)"
+author: "&copy; Захаров Максим, 2026"
+date: today
+date-format: "DD.MM.YYYY"
+lang: uk
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    theme: cosmo
+    smooth-scroll: true
+    code-fold: false
+    df-print: paged
+execute:
+  echo: true
+  warning: false
+  message: false
+editor: source
+---
+
+**Мета:** побудова ARIMA-моделей часового ряду та прогнозування на їх основі засобами мови R (пакет `forecast`, [Hyndman 2018](https://otexts.com/fpp2/)).
+
+## Завдання
+
+Отримано дані ЧР (варіант — демографія України, Worldometer, отримані у ЛР2; файл `data/raw/median_year.json`) і необхідно:
+
+1.  виконати візуалізацію ЧР;
+2.  перевірити ЧР на стаціонарність і звести до стаціонарного (диференціювання, тести `ndiffs`, KPSS);
+3.  виконати структурну та параметричну ідентифікацію ARIMA-моделі (`AIC/AICc/BIC`, АКФ/ЧАКФ);
+4.  дослідити альтернативні моделі;
+5.  знайти оцінку короткострокового прогнозу на величину $h$ наступних моментів ряду та візуалізувати прогноз.
+
+## Хід роботи
+
+### Крок 1. Підготовка середовища
+
+```{r}
+#install.packages(c("forecast", "jsonlite", "ggplot2"))
+
+library(forecast)  
+library(urca)      
+library(jsonlite)
+library(ggplot2)
+library(dplyr)
+
+dir.create("figures", showWarnings = FALSE)
+```
+
+### Крок 2. Завантаження даних та ts-об'єкт
+
+ЧР — коефіцієнт народжуваності України (`fertilityRate`), річні дані 1950–2026 рр. Створимо об'єкт типу `ts` з частотою 1 на рік.
+
+```{r}
+demo_path <- "data/raw/median_year.json"
+stopifnot(file.exists(demo_path))
+
+demo <- fromJSON(demo_path) |>
+  select(year, fertilityRate, total)
+
+fert_ts <- ts(demo$fertilityRate)
+
+fert_ts
+```
+
+До 2020 р. спостереження з кроком 5 років, далі — щорічні; у `ts` це враховано як нерівномірна річна сітка (усі наступні висновки стосуються порядку спостережень, а не календарних інтервалів).
+
+### Крок 3. Візуалізація ЧР
+
+
+```{r}
+
+autoplot(fert_ts) +
+  ggtitle("Ferility rate") +
+  ylab("Кількість")
+```
+
+Ряд має виражений спадний тренд (від ~2.45 у 1950-х до ~1.0 у 2020-х), тому очікуємо нестаціонарність.
+
+### Крок 4. Стаціонарність і диференціювання
+
+Оцінки АКФ та ЧАКФ вихідного ряду:
+
+```{r}
+ggAcf(fert_ts)
+ggPacf(fert_ts)
+```
+
+ Повільне лінійне спадання АКФ — ознака тренду (нестаціонарність).
+
+```{r}
+fert_ts |> 
+  diff() |>
+  autoplot()+ 
+  ggtitle("Fertility rate") +
+  ylab("Кількість")
+```
+
+```{r}
+fert_ts |> 
+  diff() |>
+  Box.test(lag=10, type="Ljung-Box")
+```
+
+
+### Крок 5. Побудова не сезонної ARIMA-моделі
+
+```{r}
+fit <- auto.arima(fert_ts, seasonal=FALSE)
+```
+Модель прогнозу має наступний вигляд.
+
+```{r}
+fit %>% 
+  forecast(h=5) %>% 
+  autoplot(include=80)
+```
+
