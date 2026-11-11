@@ -9,7 +9,7 @@
 <meta name="author" content="© Захаров Максим, 2026">
 <meta name="description" content="Документ зроблено в Quarto">
 
-<title>Лабораторна робота № 8. Побудова ARIMA-моделі часового ряду і прогнозування на її основі</title>
+<title>Лабораторна робота № 10. Побудова ARIMA-моделі часового ряду і прогнозування на її основі</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -66,22 +66,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="lab_8_files/libs/clipboard/clipboard.min.js"></script>
-<script src="lab_8_files/libs/quarto-html/quarto.js" type="module"></script>
-<script src="lab_8_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="lab_8_files/libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
-<script src="lab_8_files/libs/quarto-html/popper.min.js"></script>
-<script src="lab_8_files/libs/quarto-html/tippy.umd.min.js"></script>
-<script src="lab_8_files/libs/quarto-html/anchor.min.js"></script>
-<link href="lab_8_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="lab_8_files/libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="lab_8_files/libs/bootstrap/bootstrap.min.js"></script>
-<link href="lab_8_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="lab_8_files/libs/bootstrap/bootstrap-4f411e114d711e524ac8968afe1debc7.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="lab_10_files/libs/clipboard/clipboard.min.js"></script>
+<script src="lab_10_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="lab_10_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="lab_10_files/libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
+<script src="lab_10_files/libs/quarto-html/popper.min.js"></script>
+<script src="lab_10_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="lab_10_files/libs/quarto-html/anchor.min.js"></script>
+<link href="lab_10_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="lab_10_files/libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="lab_10_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="lab_10_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="lab_10_files/libs/bootstrap/bootstrap-4f411e114d711e524ac8968afe1debc7.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <style>html{ scroll-behavior: smooth; }</style>
-<link href="lab_8_files/libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+<link href="lab_10_files/libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
 
-<script src="lab_8_files/libs/pagedtable-1.1/js/pagedtable.js"></script>
+<script src="lab_10_files/libs/pagedtable-1.1/js/pagedtable.js"></script>
 
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
@@ -140,7 +140,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Лабораторна робота № 8. Побудова ARIMA-моделі часового ряду і прогнозування на її основі</h1>
+<h1 class="title">Лабораторна робота № 10. Побудова ARIMA-моделі часового ряду і прогнозування на її основі</h1>
 </div>
 
 <div>
@@ -162,7 +162,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">08.11.2026</p>
+      <p class="date">11.11.2026</p>
     </div>
   </div>
   
@@ -177,10 +177,10 @@ window.Quarto = {
 <p><strong>Мета:</strong> побудова ARIMA-моделей часового ряду та прогнозування на їх основі засобами мови R (пакет <code>forecast</code>, <a href="https://otexts.com/fpp2/">Hyndman 2018</a>).</p>
 <section id="завдання" class="level2">
 <h2 class="anchored" data-anchor-id="завдання">Завдання</h2>
-<p>Отримано дані ЧР (варіант — демографія України, Worldometer, отримані у ЛР2; файл <code>data/raw/median_year.json</code>) і необхідно:</p>
+<p>Отримано дані ЧР (варіант — демографія України, Worldometer, отримані у ЛР2; файл data/raw/median_year.json) і необхідно:</p>
 <ol type="1">
 <li>виконати візуалізацію ЧР;</li>
-<li>перевірити ЧР на стаціонарність і звести до стаціонарного (диференціювання, тести <code>ndiffs</code>, KPSS);</li>
+<li>перевірити ЧР на стаціонарність і звести до стаціонарного (диференціювання);</li>
 <li>виконати структурну та параметричну ідентифікацію ARIMA-моделі (<code>AIC/AICc/BIC</code>, АКФ/ЧАКФ);</li>
 <li>дослідити альтернативні моделі;</li>
 <li>знайти оцінку короткострокового прогнозу на величину <span class="math inline">\(h\)</span> наступних моментів ряду та візуалізувати прогноз.</li>
@@ -231,11 +231,11 @@ Frequency = 1
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>(fert_ts) <span class="sc">+</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Ferility rate"</span>) <span class="sc">+</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Кількість"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Коефіцієнт"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="lab_8_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="lab_10_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -250,7 +250,7 @@ Frequency = 1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="lab_8_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="lab_10_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -258,7 +258,7 @@ Frequency = 1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="lab_8_files/figure-html/unnamed-chunk-4-2.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="lab_10_files/figure-html/unnamed-chunk-4-2.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -273,7 +273,7 @@ Frequency = 1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="lab_8_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="lab_10_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -304,7 +304,7 @@ X-squared = 8.8899, df = 10, p-value = 0.5426</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="lab_8_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="lab_10_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -795,5 +795,5 @@ X-squared = 8.8899, df = 10, p-value = 0.5426</code></pre>
 
 
 
-<script src="lab_8_files/libs/quarto-html/zenscroll-min.js"></script>
+<script src="lab_10_files/libs/quarto-html/zenscroll-min.js"></script>
 </body></html>
