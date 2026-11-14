@@ -1,0 +1,212 @@
+---
+title: "Лабораторна робота № 1. Організація відтворюваного Data Science-проєкту. Отримання та первинна підготовка даних"
+description: "Документ зроблено в [Quarto](https://quarto.org/)"
+author: "&copy; Захаров Максим, 2026"
+date: today
+date-format: "DD.MM.YYYY"
+lang: uk
+format:
+  html:
+    # theme: quartz
+    theme: cosmo
+    code-fold: true
+    toc: true
+    toc-expand: true 
+    toc-location: left
+    toc-depth: 3
+    number-sections: true
+execute:
+  echo: true
+  warning: false
+  message: false
+editor: source
+---
+
+**Мета:** *Опанувати базовий відтворюваний workflow Data Science-проєкту в екосистемі R--RStudio--Quarto--Git: створити структурований проєкт, отримати дані, виконати їх первинний аудит і підготовку, зберегти підготовлений набір даних та сформувати відтворюваний аналітичний звіт.*
+
+
+# Хід роботи
+
+```{r}
+
+#install.packages(c("dplyr", "readr", "ggplot2", "knitr", "palmerpenguins"))
+
+library(dplyr)  
+library(readr)      
+library(ggplot2)
+library(knitr)
+library(palmerpenguins)
+```
+## Створення каталогів
+```{r}
+dir.create("data", showWarnings = FALSE)
+dir.create("data/raw", recursive = TRUE, showWarnings = FALSE)
+dir.create("data/processed", recursive = TRUE, showWarnings = FALSE)
+dir.create("figures", showWarnings = FALSE)
+```
+## Отримання сирих даних
+
+Тут для відтворюваності прикладу використаємо набір penguins, що постачається разом із пакетом palmerpenguins.
+
+```{r}
+raw_path <- "data/raw/penguins.csv"
+if(!file.exists(raw_path)){
+  readr::write_csv(
+    palmerpenguins::penguins,
+    raw_path,
+    na = ""
+  )
+}
+```
+
+## Імпорт даних
+
+```{r}
+penguins_raw <- read_csv(
+  raw_path,
+  show_col_types = FALSE
+)
+
+dplyr::glimpse(penguins_raw)
+```
+
+```{r}
+knitr::kable(
+  head(penguins_raw),
+  caption = "Перші рядки сирого набору даних"
+)
+```
+
+### Первинний аудит
+
+### Розмірність
+
+```{r}
+dim(penguins_raw)
+```
+
+### Типи змінних
+
+```{r}
+str(penguins_raw)
+```
+
+### Пропущені значення
+
+```{r}
+missing_summary <- penguins_raw |>
+  summarise(
+    across(
+      everything(),
+      ~ sum(is.na(.x))
+    )
+  ) |>
+  tidyr::pivot_longer(
+    cols = everything(),
+    names_to = "variable",
+    values_to =  "n_missing"
+  ) |>
+  arrange(desc(n_missing))
+
+knitr::kable(
+  missing_summary,
+  caption = "Кількість пропущених значень за змінними"
+)
+```
+
+### Дублікати
+
+```{r}
+n_dublicates <- sum(duplicated(penguins_raw))
+n_dublicates
+```
+
+### Базові статистичні характеристики
+
+```{r}
+summary(penguins_raw)
+```
+
+## Базова підготовка даних
+
+
+```{r}
+penguins_clean <- penguins_raw |>
+select(
+  species,
+  island,
+  bill_length_mm,
+  bill_depth_mm,
+  flipper_length_mm,
+  body_mass_g,
+  sex
+) |>
+  filter(
+    !is.na(species),
+    !is.na(bill_length_mm),
+    !is.na(bill_depth_mm),
+    !is.na(flipper_length_mm),
+    !is.na(body_mass_g)
+  )|>
+  mutate(
+    body_mass_kg = body_mass_g / 1000,
+    species = factor(species),
+    island = factor(island),
+    sex = factor(sex)
+  )
+
+dplyr::glimpse(penguins_clean)
+```
+
+Кількість спостережень до і після підготовки.
+
+```{r}
+data.frame(
+  dataset = c("raw", "processed"),
+  n_rows = c(nrow(penguins_raw), nrow(penguins_clean))
+) |>
+  knitr::kable(
+    caption = "Кількість спостережень до і після первинної підготовки"
+  )
+```
+
+## Збереження підготовлених даних
+
+```{r}
+processed_path <- "data/processed/penguins_clean.csv"
+
+readr::write_csv(
+  penguins_clean,
+  processed_path,
+  na = ""
+)
+```
+
+## Контрольна візуалізація
+
+```{r}
+penguins_clean |>
+  ggplot(
+    aes(
+      x = flipper_length_mm,
+      y = body_mass_kg,
+      shape = species
+    )
+  ) +
+  geom_point(alpha = 0.7) +
+  labs(
+    title = "Маса тіла та довжина ласта",
+    x = "Довжина ласта, мм",
+    y = "Маса тіла, кг",
+    shape = "Вид"
+  ) + 
+  theme_minimal()
+  
+```
+
+## Фіксація програмного середовища
+
+```{r}
+sessionInfo()
+```
+
