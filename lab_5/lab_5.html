@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="uk" xml:lang="uk"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.11.9">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="© Захаров Максим, 2026">
+<meta name="description" content="Документ зроблено в Quarto">
+
+<title>Лабораторна робота № 5. Кластерний аналіз, оцінювання кластерної структури та виявлення аномалій</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="lab_5_files/libs/clipboard/clipboard.min.js"></script>
+<script src="lab_5_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="lab_5_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="lab_5_files/libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
+<script src="lab_5_files/libs/quarto-html/popper.min.js"></script>
+<script src="lab_5_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="lab_5_files/libs/quarto-html/anchor.min.js"></script>
+<link href="lab_5_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="lab_5_files/libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="lab_5_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="lab_5_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="lab_5_files/libs/bootstrap/bootstrap-4f411e114d711e524ac8968afe1debc7.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<style>html{ scroll-behavior: smooth; }</style>
+<link href="lab_5_files/libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+
+<script src="lab_5_files/libs/pagedtable-1.1/js/pagedtable.js"></script>
+
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#індивідуальне-завдання" id="toc-індивідуальне-завдання" class="nav-link active" data-scroll-target="#індивідуальне-завдання">Індивідуальне завдання</a></li>
+  <li><a href="#хід-роботи" id="toc-хід-роботи" class="nav-link" data-scroll-target="#хід-роботи">Хід роботи</a>
+  <ul class="collapse">
+  <li><a href="#крок-1.-підготовка-середовища" id="toc-крок-1.-підготовка-середовища" class="nav-link" data-scroll-target="#крок-1.-підготовка-середовища">Крок 1. Підготовка середовища</a></li>
+  <li><a href="#крок-2.-завантаження-даних-із-лр4" id="toc-крок-2.-завантаження-даних-із-лр4" class="nav-link" data-scroll-target="#крок-2.-завантаження-даних-із-лр4">Крок 2. Завантаження даних із ЛР4</a></li>
+  <li><a href="#крок-3.-масштабування-ознак" id="toc-крок-3.-масштабування-ознак" class="nav-link" data-scroll-target="#крок-3.-масштабування-ознак">Крок 3. Масштабування ознак</a></li>
+  <li><a href="#крок-4.-метод-k-means-перше-розбиття" id="toc-крок-4.-метод-k-means-перше-розбиття" class="nav-link" data-scroll-target="#крок-4.-метод-k-means-перше-розбиття">Крок 4. Метод k-means: перше розбиття</a></li>
+  <li><a href="#крок-5.-вибір-кількості-кластерів-метод-ліктя" id="toc-крок-5.-вибір-кількості-кластерів-метод-ліктя" class="nav-link" data-scroll-target="#крок-5.-вибір-кількості-кластерів-метод-ліктя">Крок 5. Вибір кількості кластерів: метод ліктя</a></li>
+  <li><a href="#крок-6.-коефіцієнт-силуету" id="toc-крок-6.-коефіцієнт-силуету" class="nav-link" data-scroll-target="#крок-6.-коефіцієнт-силуету">Крок 6. Коефіцієнт силуету</a></li>
+  <li><a href="#крок-7.-профілювання-кластерів-у-вихідних-одиницях" id="toc-крок-7.-профілювання-кластерів-у-вихідних-одиницях" class="nav-link" data-scroll-target="#крок-7.-профілювання-кластерів-у-вихідних-одиницях">Крок 7. Профілювання кластерів у вихідних одиницях</a></li>
+  <li><a href="#крок-8.-візуалізація-кластерів-у-просторі-pca" id="toc-крок-8.-візуалізація-кластерів-у-просторі-pca" class="nav-link" data-scroll-target="#крок-8.-візуалізація-кластерів-у-просторі-pca">Крок 8. Візуалізація кластерів у просторі PCA</a></li>
+  <li><a href="#крок-9.-ієрархічна-кластеризація" id="toc-крок-9.-ієрархічна-кластеризація" class="nav-link" data-scroll-target="#крок-9.-ієрархічна-кластеризація">Крок 9. Ієрархічна кластеризація</a></li>
+  <li><a href="#крок-10.-оцінка-стійкості-k-means" id="toc-крок-10.-оцінка-стійкості-k-means" class="nav-link" data-scroll-target="#крок-10.-оцінка-стійкості-k-means">Крок 10. Оцінка стійкості k-means</a></li>
+  <li><a href="#крок-11.-виявлення-кандидатів-на-аномалії" id="toc-крок-11.-виявлення-кандидатів-на-аномалії" class="nav-link" data-scroll-target="#крок-11.-виявлення-кандидатів-на-аномалії">Крок 11. Виявлення кандидатів на аномалії</a></li>
+  <li><a href="#крок-12.-додатковий-експеримент-кластеризація-у-просторі-pc1pc2" id="toc-крок-12.-додатковий-експеримент-кластеризація-у-просторі-pc1pc2" class="nav-link" data-scroll-target="#крок-12.-додатковий-експеримент-кластеризація-у-просторі-pc1pc2">Крок 12. Додатковий експеримент: кластеризація у просторі PC1–PC2</a></li>
+  <li><a href="#крок-13.-підсумкові-результати-й-артефакти" id="toc-крок-13.-підсумкові-результати-й-артефакти" class="nav-link" data-scroll-target="#крок-13.-підсумкові-результати-й-артефакти">Крок 13. Підсумкові результати й артефакти</a></li>
+  <li><a href="#крок-14.-фіксація-програмного-середовища" id="toc-крок-14.-фіксація-програмного-середовища" class="nav-link" data-scroll-target="#крок-14.-фіксація-програмного-середовища">Крок 14. Фіксація програмного середовища</a></li>
+  </ul></li>
+  <li><a href="#висновок" id="toc-висновок" class="nav-link" data-scroll-target="#висновок">Висновок</a></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content" tabindex="-1">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Лабораторна робота № 5. Кластерний аналіз, оцінювання кластерної структури та виявлення аномалій</h1>
+</div>
+
+<div>
+  <div class="description">
+    Документ зроблено в <a href="https://quarto.org/">Quarto</a>
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>© Захаров Максим, 2026 </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">14.11.2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><strong>Мета:</strong> на основі даних наскрізного проєкту опанувати побудову та інтерпретацію кластерів методами k-середніх (k-means) та ієрархічної кластеризації (hierarchical clustering); оцінити структуру кластерів за внутрішніми показниками; визначити кандидатів на аномалії та критично оцінити їхню природу.</p>
+<section id="індивідуальне-завдання" class="level2">
+<h2 class="anchored" data-anchor-id="індивідуальне-завдання">Індивідуальне завдання</h2>
+<p>Дані — демографічний набір щодо України за 1950–2026 рр. (Worldometer, файл data/raw/median_year.json). Використовуються результати ЛР4: data/processed/lab4_features.csv (шість кількісних ознак на рівні <em>року</em>) та data/processed/lab4_pca_scores.csv (координати PC1–PC2 для візуалізації).</p>
+<p>Виконані пункти індивідуального завдання:</p>
+<ol type="1">
+<li>обґрунтовано одиницю кластеризації, ознаки, метрику та масштабування;</li>
+<li>для <span class="math inline">\(K = 2,\dots,8\)</span> побудовано графіки WCSS та середнього силуету, обрано <span class="math inline">\(K\)</span> з поясненням;</li>
+<li>оцінено чутливість k-means до ініціалізації;</li>
+<li>виконано ієрархічну кластеризацію двома способами зв’язування (ward.D2 і complete) та порівняно розбиття;</li>
+<li>сформовано профілі кластерів у вихідних одиницях;</li>
+<li>побудовано проєкцію кластерів у просторі PC1–PC2 з ЛР4;</li>
+<li>виділено кандидатів на аномалії за відстанню до центроїда та досліджено їх;</li>
+<li>сформульовано висновок щодо якості, стійкості та обмежень розбиття.</li>
+</ol>
+</section>
+<section id="хід-роботи" class="level2">
+<h2 class="anchored" data-anchor-id="хід-роботи">Хід роботи</h2>
+<section id="крок-1.-підготовка-середовища" class="level3">
+<h3 class="anchored" data-anchor-id="крок-1.-підготовка-середовища">Крок 1. Підготовка середовища</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages(c("tidyverse", "cluster"))</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(cluster)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">"figures"</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">"data/processed"</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">12345</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="крок-2.-завантаження-даних-із-лр4" class="level3">
+<h3 class="anchored" data-anchor-id="крок-2.-завантаження-даних-із-лр4">Крок 2. Завантаження даних із ЛР4</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>features_path <span class="ot">&lt;-</span> <span class="st">"data/processed/lab4_features.csv"</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>scores_path   <span class="ot">&lt;-</span> <span class="st">"data/processed/lab4_pca_scores.csv"</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(features_path) <span class="sc">||</span> <span class="sc">!</span><span class="fu">file.exists</span>(scores_path)) {</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stop</span>(<span class="st">"Відсутні файли ЛР4. Спочатку виконайте ЛР4."</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>analysis_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(features_path, <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>scores        <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(scores_path, <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(analysis_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 16
+Columns: 7
+$ year        &lt;dbl&gt; 1955, 1960, 1965, 1970, 1975, 1980, 1985, 1990, 1995, 2000…
+$ pop_mln     &lt;dbl&gt; 39.85971, 42.82409, 45.38689, 47.26131, 48.86523, 49.95515…
+$ urban_share &lt;dbl&gt; 0.4153929, 0.4661540, 0.5050976, 0.5462814, 0.5826164, 0.6…
+$ fertility   &lt;dbl&gt; 2.312, 2.285, 1.943, 2.078, 2.049, 1.949, 2.033, 1.845, 1.…
+$ median_age  &lt;dbl&gt; 27.520, 28.342, 29.125, 31.262, 33.054, 32.510, 32.733, 33…
+$ mig_rate    &lt;dbl&gt; 3.27819738, 1.22083146, 1.52806233, -1.02271825, 0.3138427…
+$ growth_rate &lt;dbl&gt; 0.013725217, 0.013725483, 0.009693544, 0.006067959, 0.0059…</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(scores)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 16
+Columns: 3
+$ PC1  &lt;dbl&gt; 2.4701782, 2.2445800, 1.6524717, 1.4914980, 1.0787494, 0.8708259,…
+$ PC2  &lt;dbl&gt; 2.24242232, 1.65675304, 0.89250891, 0.23801743, -0.03766657, -0.3…
+$ year &lt;dbl&gt; 1955, 1960, 1965, 1970, 1975, 1980, 1985, 1990, 1995, 2000, 2005,…</code></pre>
+</div>
+</div>
+<p>Одиниця кластеризації — <em>один рік</em> демографічної історії України. Ключ — year. У матрицю відстаней ідентифікатор не включається: year — це мітка спостереження, а не кількісна характеристика; її включення штучно нав’язало б кластеризацію хронологічний порядок, а не структуру демографічних показників. Ознаки — ті самі шість, що й у ЛР4:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>feature_names <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"pop_mln"</span>, <span class="st">"urban_share"</span>, <span class="st">"fertility"</span>,</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>                   <span class="st">"median_age"</span>, <span class="st">"mig_rate"</span>, <span class="st">"growth_rate"</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">all</span>(<span class="fu">c</span>(<span class="st">"year"</span>, feature_names) <span class="sc">%in%</span> <span class="fu">names</span>(analysis_data)),</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">all</span>(<span class="fu">c</span>(<span class="st">"year"</span>, <span class="st">"PC1"</span>, <span class="st">"PC2"</span>) <span class="sc">%in%</span> <span class="fu">names</span>(scores)),</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="sc">!</span><span class="fu">anyDuplicated</span>(analysis_data<span class="sc">$</span>year)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nrow</span>(analysis_data) <span class="sc">&gt;</span> <span class="dv">8</span>,</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">all</span>(<span class="fu">map_lgl</span>(analysis_data[feature_names], <span class="sc">~</span><span class="fu">sd</span>(.x) <span class="sc">&gt;</span> <span class="dv">0</span>))</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> analysis_data <span class="sc">|&gt;</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">all_of</span>(feature_names)) <span class="sc">|&gt;</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.matrix</span>()</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(X)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 16  6</code></pre>
+</div>
+</div>
+</section>
+<section id="крок-3.-масштабування-ознак" class="level3">
+<h3 class="anchored" data-anchor-id="крок-3.-масштабування-ознак">Крок 3. Масштабування ознак</h3>
+<p>У ЛР4 обґрунтовано стандартизацію: ознаки вимірюються в різних одиницях (млн осіб, частки, роки, проміле). Для кластеризації це критично ще й тому, що k-means та евклідова відстань мінімізують <em>суму квадратів відхилень</em> — без масштабування відстань між роками визначалася б виключно pop_mln.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>Z <span class="ot">&lt;-</span> <span class="fu">scale</span>(X, <span class="at">center =</span> <span class="cn">TRUE</span>, <span class="at">scale =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(<span class="fu">is.finite</span>(Z)))</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">colMeans</span>(Z), <span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    pop_mln urban_share   fertility  median_age    mig_rate growth_rate 
+          0           0           0           0           0           0 </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">apply</span>(Z, <span class="dv">2</span>, sd), <span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    pop_mln urban_share   fertility  median_age    mig_rate growth_rate 
+          1           1           1           1           1           1 </code></pre>
+</div>
+</div>
+<p>Стандартизація усуває різницю масштабів, але не кореляцію між ознаками: fertility, median_age, growth_rate залишаються сильнозкорельованими, тому відстань між роками враховує цю спільну варіацію кілька разів. Це прийняте методологічне рішення, яке слід мати на увазі при інтерпретації.</p>
+</section>
+<section id="крок-4.-метод-k-means-перше-розбиття" class="level3">
+<h3 class="anchored" data-anchor-id="крок-4.-метод-k-means-перше-розбиття">Крок 4. Метод k-means: перше розбиття</h3>
+<p>Починаємо з <span class="math inline">\(K=3\)</span> як <em>навчального припущення</em>:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">12345</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>km3 <span class="ot">&lt;-</span> <span class="fu">kmeans</span>(Z, <span class="at">centers =</span> <span class="dv">3</span>, <span class="at">nstart =</span> <span class="dv">30</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">cluster  =</span> <span class="fu">seq_along</span>(km3<span class="sc">$</span>size),</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">n        =</span> <span class="fu">as.integer</span>(km3<span class="sc">$</span>size),</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">withinss =</span> <span class="fu">as.numeric</span>(km3<span class="sc">$</span>withinss)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["cluster"],"name":[1],"type":["int"],"align":["right"]},{"label":["n"],"name":[2],"type":["int"],"align":["right"]},{"label":["withinss"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"1","3":"0.00000"},{"1":"2","2":"8","3":"16.28154"},{"1":"3","2":"7","3":"11.60180"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>km3<span class="sc">$</span>tot.withinss</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 27.88334</code></pre>
+</div>
+</div>
+<p>Номери кластерів довільні. Перевіримо склад груп:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>assignments <span class="ot">&lt;-</span> analysis_data <span class="sc">|&gt;</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(year, <span class="fu">all_of</span>(feature_names)) <span class="sc">|&gt;</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">cluster_kmeans =</span> <span class="fu">factor</span>(km3<span class="sc">$</span>cluster))</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>assignments <span class="sc">|&gt;</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(cluster_kmeans, <span class="at">name =</span> <span class="st">"n_years"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["cluster_kmeans"],"name":[1],"type":["fct"],"align":["left"]},{"label":["n_years"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"1","2":"1"},{"1":"2","2":"8"},{"1":"3","2":"7"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+</section>
+<section id="крок-5.-вибір-кількості-кластерів-метод-ліктя" class="level3">
+<h3 class="anchored" data-anchor-id="крок-5.-вибір-кількості-кластерів-метод-ліктя">Крок 5. Вибір кількості кластерів: метод ліктя</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>k_grid <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">8</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">12345</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>elbow <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">K =</span> k_grid) <span class="sc">|&gt;</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">WCSS =</span> <span class="fu">map_dbl</span>(</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>      K,</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>      <span class="sc">~</span><span class="fu">kmeans</span>(Z, <span class="at">centers =</span> .x, <span class="at">nstart =</span> <span class="dv">30</span>)<span class="sc">$</span>tot.withinss</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>p_elbow <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(elbow, <span class="fu">aes</span>(K, WCSS)) <span class="sc">+</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">colour =</span> <span class="st">"#6366f1"</span>) <span class="sc">+</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">colour =</span> <span class="st">"#6366f1"</span>, <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> k_grid) <span class="sc">+</span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Метод ліктя"</span>,</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Кількість кластерів K"</span>,</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Внутрішньокластерна сума квадратів"</span></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>p_elbow</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lab_5_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><em>Інтерпретація:</em> WCSS закономірно не зростає зі збільшенням <span class="math inline">\(K\)</span>. Виражений «лікоть» видно при <span class="math inline">\(K = 2\)</span>–<span class="math inline">\(3\)</span>: при менших <span class="math inline">\(K\)</span> додавання кластера суттєво знижує WCSS, далі виграш швидко зменшується. Метод ліктя не дає однозначної відповіді, тому підкріплюємо його силуетом.</p>
+</section>
+<section id="крок-6.-коефіцієнт-силуету" class="level3">
+<h3 class="anchored" data-anchor-id="крок-6.-коефіцієнт-силуету">Крок 6. Коефіцієнт силуету</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>D <span class="ot">&lt;-</span> <span class="fu">dist</span>(Z, <span class="at">method =</span> <span class="st">"euclidean"</span>)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">12345</span>)</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>silhouette_table <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(<span class="dv">2</span><span class="sc">:</span><span class="dv">8</span>, <span class="cf">function</span>(k) {</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  fit <span class="ot">&lt;-</span> <span class="fu">kmeans</span>(Z, <span class="at">centers =</span> k, <span class="at">nstart =</span> <span class="dv">30</span>)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  sil <span class="ot">&lt;-</span> <span class="fu">silhouette</span>(fit<span class="sc">$</span>cluster, D)</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">K =</span> k,</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_silhouette =</span> <span class="fu">mean</span>(sil[, <span class="st">"sil_width"</span>])</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>p_sil <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(silhouette_table, <span class="fu">aes</span>(K, mean_silhouette)) <span class="sc">+</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">colour =</span> <span class="st">"#6366f1"</span>) <span class="sc">+</span></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">colour =</span> <span class="st">"#6366f1"</span>, <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="dv">2</span><span class="sc">:</span><span class="dv">8</span>) <span class="sc">+</span></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Середній коефіцієнт силуету"</span>,</span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Кількість кластерів"</span>,</span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Середній силует"</span></span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>p_sil</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lab_5_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Обираємо <span class="math inline">\(K\)</span> не механічним максимумом силуету, а з урахуванням структури розбиття. Формальний максимум припадає на <span class="math inline">\(K = 5\)</span>, але при такому <span class="math inline">\(K\)</span> один з кластерів складається з <em>одного спостереження</em> — при <span class="math inline">\(n = 16\)</span> це артефакт малого вибірки (силует зростає, коли «відокремлюються» одиничні об’єкти), а не природна кількість груп. Тому як <strong>робочий вибір</strong> приймаємо <span class="math inline">\(K = 3\)</span>: він узгоджується з «ліктем» (<span class="math inline">\(K = 2\)</span>–<span class="math inline">\(3\)</span>), дає непорожні змістовні групи та максимум силуету серед «чесних» розбиттів (<span class="math inline">\(K \le 4\)</span>):</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>best_k <span class="ot">&lt;-</span> <span class="dv">3</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">12345</span>)</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>km <span class="ot">&lt;-</span> <span class="fu">kmeans</span>(Z, <span class="at">centers =</span> best_k, <span class="at">nstart =</span> <span class="dv">30</span>)</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>sil_best <span class="ot">&lt;-</span> silhouette_table <span class="sc">|&gt;</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(K <span class="sc">==</span> best_k) <span class="sc">|&gt;</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(mean_silhouette)</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">selected_k      =</span> best_k,</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">total_wcss      =</span> km<span class="sc">$</span>tot.withinss,</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">mean_silhouette =</span> sil_best,</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">cluster_sizes   =</span> <span class="fu">paste</span>(km<span class="sc">$</span>size, <span class="at">collapse =</span> <span class="st">", "</span>)</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["selected_k"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["total_wcss"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["mean_silhouette"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["cluster_sizes"],"name":[4],"type":["chr"],"align":["left"]}],"data":[{"1":"3","2":"27.88334","3":"0.4298894","4":"1, 8, 7"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p><em>Порівняння критеріїв:</em> метод ліктя вказує на <span class="math inline">\(K = 2\)</span>–<span class="math inline">\(3\)</span>; формальний максимум силуету — на <span class="math inline">\(K = 8\)</span>, але це розбиття з однопоточним кластером і відхилено; серед «чесних» розбиттів силует максимальний при <span class="math inline">\(K = 3\)</span>. Рекомендації критеріїв частково розходяться — вибір <span class="math inline">\(K\)</span> вимагає змістовного судження, а не механічного максимуму метрики.</p>
+</section>
+<section id="крок-7.-профілювання-кластерів-у-вихідних-одиницях" class="level3">
+<h3 class="anchored" data-anchor-id="крок-7.-профілювання-кластерів-у-вихідних-одиницях">Крок 7. Профілювання кластерів у вихідних одиницях</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>clustered <span class="ot">&lt;-</span> analysis_data <span class="sc">|&gt;</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">cluster =</span> <span class="fu">factor</span>(km<span class="sc">$</span>cluster))</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>profiles <span class="ot">&lt;-</span> clustered <span class="sc">|&gt;</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(cluster) <span class="sc">|&gt;</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="fu">n</span>(),</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">across</span>(</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">all_of</span>(feature_names),</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>      <span class="fu">list</span>(<span class="at">mean =</span> mean, <span class="at">median =</span> median),</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">.names =</span> <span class="st">"{.col}_{.fn}"</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>profiles</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["cluster"],"name":[1],"type":["fct"],"align":["left"]},{"label":["n"],"name":[2],"type":["int"],"align":["right"]},{"label":["pop_mln_mean"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["pop_mln_median"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["urban_share_mean"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["urban_share_median"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["fertility_mean"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["fertility_median"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["median_age_mean"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["median_age_median"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["mig_rate_mean"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["mig_rate_median"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["growth_rate_mean"],"name":[13],"type":["dbl"],"align":["right"]},{"label":["growth_rate_median"],"name":[14],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"1","3":"38.98038","4":"38.98038","5":"0.7676586","6":"0.7676586","7":"0.997000","8":"0.997","9":"41.78800","10":"41.788","11":"43.6721801","12":"43.6721801","13":"0.029586594","14":"0.029586594"},{"1":"2","2":"8","3":"47.16441","4":"48.06327","5":"0.5546344","6":"0.5644489","7":"2.061750","8":"2.041","9":"30.97250","10":"31.886","11":"0.9788887","12":"1.0849013","13":"0.007603407","14":"0.006005155"},{"1":"3","2":"7","3":"46.46636","4":"46.45600","5":"0.6818575","6":"0.6736059","7":"1.251857","8":"1.221","9":"38.42057","10":"38.585","11":"-0.9561666","12":"-0.4803331","13":"-0.003441325","14":"-0.006171256"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>p_groups <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  clustered,</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> cluster, <span class="at">y =</span> fertility, <span class="at">fill =</span> cluster)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Коефіцієнт народжуваності у кластерах"</span>,</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Кластер"</span>,</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Коефіцієнт народжуваності"</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>p_groups</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lab_5_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><em>Змістовні, але обережні назви сегментів</em> (за профілями): кластер із високою народжуваністю, молодим населенням і зростанням чисельності — «ранній демографічний перехід»; кластер із низькою народжуваністю, старим населенням і депопуляцією — «пізній демографічний перехід». <strong>Важливо:</strong> відмінність кластерів за цими ознаками очікувана, бо розбиття отримано саме за ними — це профіль групи, а не незалежне підтвердження існування «типів років».</p>
+</section>
+<section id="крок-8.-візуалізація-кластерів-у-просторі-pca" class="level3">
+<h3 class="anchored" data-anchor-id="крок-8.-візуалізація-кластерів-у-просторі-pca">Крок 8. Візуалізація кластерів у просторі PCA</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>pca_view <span class="ot">&lt;-</span> clustered <span class="sc">|&gt;</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(year, cluster) <span class="sc">|&gt;</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    scores <span class="sc">|&gt;</span> <span class="fu">select</span>(year, PC1, PC2),</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> <span class="st">"year"</span>,</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">relationship =</span> <span class="st">"one-to-one"</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">nrow</span>(pca_view) <span class="sc">==</span> <span class="fu">nrow</span>(clustered))</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>p_pca <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(pca_view, <span class="fu">aes</span>(PC1, PC2, <span class="at">colour =</span> cluster)) <span class="sc">+</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_path</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">colour =</span> <span class="st">"grey50"</span>) <span class="sc">+</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">alpha =</span> <span class="fl">0.9</span>) <span class="sc">+</span></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Кластери k-means у проєкції PC1--PC2"</span>,</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Лінія — хронологічний порядок"</span>,</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"PC1: демографічний перехід"</span>,</span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"PC2: міграційна складова"</span>,</span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="st">"Кластер"</span></span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>p_pca</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lab_5_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><em>Різниця між проєкцією та простором алгоритму:</em> k-means працював у <strong>шестивимірному</strong> стандартизованому просторі. PC1–PC2 — лише двовимірна тінь, що пояснює 87% дисперсії. У проєкції кластери виглядають відокремленими частково тому, що PC1 домінує у відстанях; складність у повному просторі може бути іншою.</p>
+</section>
+<section id="крок-9.-ієрархічна-кластеризація" class="level3">
+<h3 class="anchored" data-anchor-id="крок-9.-ієрархічна-кластеризація">Крок 9. Ієрархічна кластеризація</h3>
+<p>Індивідуальне завдання вимагає двох способів зв’язування: ward.D2 та complete.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>hc_ward     <span class="ot">&lt;-</span> <span class="fu">hclust</span>(D, <span class="at">method =</span> <span class="st">"ward.D2"</span>)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>hc_complete <span class="ot">&lt;-</span> <span class="fu">hclust</span>(D, <span class="at">method =</span> <span class="st">"complete"</span>)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  hc_ward,</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">labels =</span> analysis_data<span class="sc">$</span>year,</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">hang =</span> <span class="sc">-</span><span class="dv">1</span>,</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">main =</span> <span class="st">"Ward.D2"</span>,</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Роки"</span>,</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">sub =</span> <span class="st">""</span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a><span class="fu">rect.hclust</span>(hc_ward, <span class="at">k =</span> best_k, <span class="at">border =</span> <span class="dv">2</span><span class="sc">:</span>(best_k <span class="sc">+</span> <span class="dv">1</span>))</span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>  hc_complete,</span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">labels =</span> analysis_data<span class="sc">$</span>year,</span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">hang =</span> <span class="sc">-</span><span class="dv">1</span>,</span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">main =</span> <span class="st">"Complete linkage"</span>,</span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Роки"</span>,</span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">sub =</span> <span class="st">""</span></span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a><span class="fu">rect.hclust</span>(hc_complete, <span class="at">k =</span> best_k, <span class="at">border =</span> <span class="dv">2</span><span class="sc">:</span>(best_k <span class="sc">+</span> <span class="dv">1</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lab_5_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>hier_ward     <span class="ot">&lt;-</span> <span class="fu">cutree</span>(hc_ward, <span class="at">k =</span> best_k)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>hier_complete <span class="ot">&lt;-</span> <span class="fu">cutree</span>(hc_complete, <span class="at">k =</span> best_k)</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>comparison <span class="ot">&lt;-</span> <span class="fu">table</span>(</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">Kmeans       =</span> km<span class="sc">$</span>cluster,</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">Ward         =</span> hier_ward,</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">Complete     =</span> hier_complete</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>comparison</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>, , Complete = 1
+
+      Ward
+Kmeans 1 2 3
+     1 0 0 0
+     2 2 0 0
+     3 0 0 0
+
+, , Complete = 2
+
+      Ward
+Kmeans 1 2 3
+     1 0 0 0
+     2 6 0 0
+     3 0 6 0
+
+, , Complete = 3
+
+      Ward
+Kmeans 1 2 3
+     1 0 0 1
+     2 0 0 0
+     3 0 1 0</code></pre>
+</div>
+</div>
+<p><strong>Питання:</strong> номери кластерів не можна порівнювати як рівні значення — методи присвоюють мітки незалежно, і «кластер 1» у k-means не має нічого спільного з «кластером 1» у Ward. Порівнювати можна лише <em>склад груп</em>. Дендрограми: Ward об’єднує компактні майже однакові за розміром групи; complete linkage схильний до дрібніших, «щільних» кластерів, оскільки об’єднує групи за максимальною відстанню між їхніми членами.</p>
+</section>
+<section id="крок-10.-оцінка-стійкості-k-means" class="level3">
+<h3 class="anchored" data-anchor-id="крок-10.-оцінка-стійкості-k-means">Крок 10. Оцінка стійкості k-means</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>seeds <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">101</span>, <span class="dv">202</span>, <span class="dv">303</span>, <span class="dv">404</span>, <span class="dv">505</span>)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>stability <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(seeds, <span class="cf">function</span>(seed) {</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(seed)</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  fit <span class="ot">&lt;-</span> <span class="fu">kmeans</span>(Z, <span class="at">centers =</span> best_k, <span class="at">nstart =</span> <span class="dv">1</span>)</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">seed =</span> seed, <span class="at">WCSS =</span> fit<span class="sc">$</span>tot.withinss)</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>stability</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["seed"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["WCSS"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"101","2":"27.88334"},{"1":"202","2":"27.88334"},{"1":"303","2":"40.81011"},{"1":"404","2":"29.23819"},{"1":"505","2":"29.23819"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>p_stab <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(stability, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">factor</span>(seed), <span class="at">y =</span> WCSS)) <span class="sc">+</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">fill =</span> <span class="st">"#6366f1"</span>) <span class="sc">+</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Чутливість k-means до ініціалізації (nstart = 1)"</span>,</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Зерно генератора"</span>,</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"WCSS"</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>p_stab</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lab_5_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">wcss_min     =</span> <span class="fu">min</span>(stability<span class="sc">$</span>WCSS),</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">wcss_max     =</span> <span class="fu">max</span>(stability<span class="sc">$</span>WCSS),</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">wcss_spread  =</span> <span class="fu">max</span>(stability<span class="sc">$</span>WCSS) <span class="sc">-</span> <span class="fu">min</span>(stability<span class="sc">$</span>WCSS),</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">rel_spread   =</span> (<span class="fu">max</span>(stability<span class="sc">$</span>WCSS) <span class="sc">-</span> <span class="fu">min</span>(stability<span class="sc">$</span>WCSS)) <span class="sc">/</span> <span class="fu">min</span>(stability<span class="sc">$</span>WCSS)</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["wcss_min"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["wcss_max"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["wcss_spread"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["rel_spread"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"27.88334","2":"40.81011","3":"12.92677","4":"0.4636017"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p><em>Додатково:</em> з nstart = 30 (Крок 6) WCSS відтворюваний та мінімальний: багатостартова ініціалізація усуває залежність від випадкового старту, хоча ідентичність WCSS не гарантує тотожного складу кластерів.</p>
+</section>
+<section id="крок-11.-виявлення-кандидатів-на-аномалії" class="level3">
+<h3 class="anchored" data-anchor-id="крок-11.-виявлення-кандидатів-на-аномалії">Крок 11. Виявлення кандидатів на аномалії</h3>
+<p>Відстань об’єкта до центроїда <em>його</em> кластера:</p>
+<p><span class="math display">\[
+r_i=\|\mathbf{z}_i-\boldsymbol{\mu}_{c_i}\|_2.
+\]</span></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>assigned_centers <span class="ot">&lt;-</span> km<span class="sc">$</span>centers[km<span class="sc">$</span>cluster, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>distance_to_centroid <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rowSums</span>((Z <span class="sc">-</span> assigned_centers)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>anomaly_candidates <span class="ot">&lt;-</span> clustered <span class="sc">|&gt;</span></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">distance_to_centroid =</span> distance_to_centroid,</span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">candidate =</span> distance_to_centroid <span class="sc">&gt;=</span></span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>      <span class="fu">quantile</span>(distance_to_centroid, <span class="fl">0.95</span>)</span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(distance_to_centroid))</span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>anomaly_candidates <span class="sc">|&gt;</span></span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>    year, cluster,</span>
+<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">all_of</span>(feature_names),</span>
+<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a>    distance_to_centroid, candidate</span>
+<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb30-21"><a href="#cb30-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">12</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["year"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["cluster"],"name":[2],"type":["fct"],"align":["left"]},{"label":["pop_mln"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["urban_share"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["fertility"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["median_age"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["mig_rate"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["growth_rate"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["distance_to_centroid"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["candidate"],"name":[10],"type":["lgl"],"align":["right"]}],"data":[{"1":"2026","2":"3","3":"39.53585","4":"0.7548809","5":"1.004","6":"41.820","7":"-0.15755321","8":"0.014250068","9":"2.6111173","10":"TRUE"},{"1":"1955","2":"2","3":"39.85971","4":"0.4153929","5":"2.312","6":"27.520","7":"3.27819738","8":"0.013725217","9":"2.4819733","10":"FALSE"},{"1":"1990","2":"2","3":"52.05409","4":"0.6600070","5":"1.845","6":"33.234","7":"1.45540912","8":"0.002624821","9":"1.7737389","10":"FALSE"},{"1":"1960","2":"2","3":"42.82409","4":"0.4661540","5":"2.285","6":"28.342","7":"1.22083146","8":"0.013725483","9":"1.6531052","10":"FALSE"},{"1":"1995","2":"3","3":"51.66554","4":"0.6596650","5":"1.399","6":"34.507","7":"-2.59463082","8":"-0.007881923","9":"1.5867146","10":"FALSE"},{"1":"1985","2":"2","3":"51.10877","4":"0.6444270","5":"2.033","6":"32.733","7":"0.10851367","8":"0.004346265","9":"1.3937034","10":"FALSE"},{"1":"2000","2":"3","3":"49.55666","4":"0.6617388","5":"1.108","6":"36.266","7":"-1.36944257","8":"-0.008399677","9":"1.0450561","10":"FALSE"},{"1":"1980","2":"2","3":"49.95515","4":"0.6170994","5":"1.949","6":"32.510","7":"0.94897119","8":"0.004701619","9":"1.0376635","10":"FALSE"},{"1":"1965","2":"2","3":"45.38689","4":"0.5050976","5":"1.943","6":"29.125","7":"1.52806233","8":"0.009693544","9":"0.8315146","10":"FALSE"},{"1":"2020","2":"3","3":"44.68001","4":"0.6789307","5":"1.208","6":"40.793","7":"-0.09326318","8":"-0.006171256","9":"0.7147494","10":"FALSE"},{"1":"1975","2":"2","3":"48.86523","4":"0.5826164","5":"2.049","6":"33.054","7":"0.31384279","8":"0.005942350","9":"0.6816445","10":"FALSE"},{"1":"2005","2":"3","3":"47.58556","4":"0.6680220","5":"1.221","6":"37.741","7":"-2.34300089","8":"-0.008210818","9":"0.5787210","10":"FALSE"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>Поріг 95-го процентиля — <strong>навчальна евристика</strong> для відбору приблизно 5% найвіддаленіших об’єктів, а не статистичний тест.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>p_anomaly <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  anomaly_candidates,</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> cluster, <span class="at">y =</span> distance_to_centroid, <span class="at">colour =</span> candidate)</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">width =</span> <span class="fl">0.18</span>, <span class="at">height =</span> <span class="dv">0</span>, <span class="at">alpha =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Відстані до центроїдів: кандидати на аномалії"</span>,</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Кластер"</span>,</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Евклідова відстань до центроїда"</span>,</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="st">"Кандидат"</span></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>p_anomaly</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lab_5_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><em>Дослідження кандидатів.</em> Розглянемо роки з найбільшими відстанями та пояснимо їхній зміст:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>top_anomalies <span class="ot">&lt;-</span> anomaly_candidates <span class="sc">|&gt;</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(candidate) <span class="sc">|&gt;</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(year, cluster, <span class="fu">all_of</span>(feature_names), distance_to_centroid)</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>top_anomalies</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["year"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["cluster"],"name":[2],"type":["fct"],"align":["left"]},{"label":["pop_mln"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["urban_share"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["fertility"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["median_age"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["mig_rate"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["growth_rate"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["distance_to_centroid"],"name":[9],"type":["dbl"],"align":["right"]}],"data":[{"1":"2026","2":"3","3":"39.53585","4":"0.7548809","5":"1.004","6":"41.82","7":"-0.1575532","8":"0.01425007","9":"2.611117"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+</section>
+<section id="крок-12.-додатковий-експеримент-кластеризація-у-просторі-pc1pc2" class="level3">
+<h3 class="anchored" data-anchor-id="крок-12.-додатковий-експеримент-кластеризація-у-просторі-pc1pc2">Крок 12. Додатковий експеримент: кластеризація у просторі PC1–PC2</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">12345</span>)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>pca_space <span class="ot">&lt;-</span> pca_view <span class="sc">|&gt;</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(PC1, PC2) <span class="sc">|&gt;</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.matrix</span>() <span class="sc">|&gt;</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale</span>()</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>km_pca <span class="ot">&lt;-</span> <span class="fu">kmeans</span>(pca_space, <span class="at">centers =</span> best_k, <span class="at">nstart =</span> <span class="dv">30</span>)</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>agree <span class="ot">&lt;-</span> <span class="fu">table</span>(</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">FullSpace =</span> km<span class="sc">$</span>cluster,</span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">PCA_Space =</span> km_pca<span class="sc">$</span>cluster</span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>agree</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         PCA_Space
+FullSpace 1 2 3
+        1 1 0 0
+        2 0 5 3
+        3 1 0 6</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># зовнішнє погодження розбиттів: частка спостережень у спільних групах</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>best_pairs <span class="ot">&lt;-</span> <span class="fu">apply</span>(agree, <span class="dv">2</span>, max)</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>match_share <span class="ot">&lt;-</span> <span class="fu">sum</span>(best_pairs) <span class="sc">/</span> <span class="fu">nrow</span>(pca_space)</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(match_share, <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.75</code></pre>
+</div>
+</div>
+<p>Склад груп порівнюється за максимальним співпадінням складу (не за номерами кластерів). Частка узгоджених спостережень — 75%. Кластеризація у просторі PC1–PC2 близька до повнопросторної, оскільки дві перші компоненти пояснюють 87% дисперсії, але це не тотожні розбиття: PC2 (міграційна складова) у проєкції впливає на відстані сильніше, ніж у повному просторі з шістьма ознаками.</p>
+</section>
+<section id="крок-13.-підсумкові-результати-й-артефакти" class="level3">
+<h3 class="anchored" data-anchor-id="крок-13.-підсумкові-результати-й-артефакти">Крок 13. Підсумкові результати й артефакти</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>cluster_results <span class="ot">&lt;-</span> anomaly_candidates <span class="sc">|&gt;</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">cluster_kmeans       =</span> <span class="fu">as.integer</span>(cluster),</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">cluster_hier_ward    =</span> hier_ward,</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">cluster_hier_complete =</span> hier_complete</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>    year,</span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">all_of</span>(feature_names),</span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>    cluster_kmeans, cluster_hier_ward, cluster_hier_complete,</span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>    distance_to_centroid, candidate</span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(cluster_results, <span class="st">"data/processed/lab5_cluster_results.csv"</span>)</span>
+<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(profiles,        <span class="st">"data/processed/lab5_cluster_profiles.csv"</span>)</span>
+<span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(elbow,           <span class="st">"data/processed/lab5_elbow.csv"</span>)</span>
+<span id="cb37-17"><a href="#cb37-17" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(silhouette_table,<span class="st">"data/processed/lab5_silhouette.csv"</span>)</span>
+<span id="cb37-18"><a href="#cb37-18" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(stability,       <span class="st">"data/processed/lab5_stability.csv"</span>)</span>
+<span id="cb37-19"><a href="#cb37-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-20"><a href="#cb37-20" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">"figures/lab5_elbow.png"</span>,     p_elbow,   <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">5</span>)</span>
+<span id="cb37-21"><a href="#cb37-21" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">"figures/lab5_silhouette.png"</span>,p_sil,     <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">5</span>)</span>
+<span id="cb37-22"><a href="#cb37-22" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">"figures/lab5_pca_clusters.png"</span>, p_pca,  <span class="at">width =</span> <span class="dv">9</span>, <span class="at">height =</span> <span class="dv">6</span>)</span>
+<span id="cb37-23"><a href="#cb37-23" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">"figures/lab5_stability.png"</span>, p_stab,    <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">5</span>)</span>
+<span id="cb37-24"><a href="#cb37-24" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">"figures/lab5_anomalies.png"</span>, p_anomaly, <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nrow</span>(cluster_results) <span class="sc">==</span> <span class="fu">nrow</span>(analysis_data),</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>  <span class="sc">!</span><span class="fu">anyDuplicated</span>(cluster_results<span class="sc">$</span>year),</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">all</span>(<span class="sc">!</span><span class="fu">is.na</span>(cluster_results<span class="sc">$</span>cluster_hier_ward)),</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">all</span>(<span class="sc">!</span><span class="fu">is.na</span>(cluster_results<span class="sc">$</span>cluster_hier_complete))</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">n_years      =</span> <span class="fu">nrow</span>(cluster_results),</span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">selected_k   =</span> best_k,</span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">n_candidates =</span> <span class="fu">sum</span>(cluster_results<span class="sc">$</span>candidate)</span>
+<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["n_years"],"name":[1],"type":["int"],"align":["right"]},{"label":["selected_k"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["n_candidates"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"16","2":"3","3":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+</section>
+<section id="крок-14.-фіксація-програмного-середовища" class="level3">
+<h3 class="anchored" data-anchor-id="крок-14.-фіксація-програмного-середовища">Крок 14. Фіксація програмного середовища</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>R version 4.6.2 (2026-10-29 ucrt)
+Platform: x86_64-w64-mingw32/x64
+Running under: Windows 10 x64 (build 19044)
+
+Matrix products: default
+  LAPACK version 3.12.1
+
+locale:
+[1] LC_COLLATE=Russian_Russia.utf8  LC_CTYPE=Russian_Russia.utf8   
+[3] LC_MONETARY=Russian_Russia.utf8 LC_NUMERIC=C                   
+[5] LC_TIME=Russian_Russia.utf8    
+
+time zone: Europe/Kiev
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+ [1] cluster_2.1.8.3 lubridate_1.9.5 forcats_1.0.1   stringr_1.6.0  
+ [5] dplyr_1.2.1     purrr_1.2.2     readr_2.2.0     tidyr_1.3.2    
+ [9] tibble_3.3.1    ggplot2_4.0.3   tidyverse_2.0.0
+
+loaded via a namespace (and not attached):
+ [1] generics_0.1.4     stringi_1.8.9      hms_1.1.4          digest_0.6.39     
+ [5] magrittr_2.0.5     evaluate_1.0.5     grid_4.6.2         timechange_0.4.0  
+ [9] RColorBrewer_1.1-3 fastmap_1.2.0      jsonlite_2.0.0     scales_1.4.0      
+[13] textshaping_1.0.5  cli_3.6.6          rlang_1.3.0        crayon_1.5.3      
+[17] bit64_4.8.6        withr_3.0.3        yaml_2.3.12        otel_0.3.0        
+[21] tools_4.6.2        parallel_4.6.2     tzdb_0.5.0         vctrs_0.7.3       
+[25] R6_2.6.1           lifecycle_1.0.5    bit_4.6.0          vroom_1.7.1       
+[29] ragg_1.5.2         pkgconfig_2.0.3    pillar_1.11.1      gtable_0.3.6      
+[33] glue_1.8.1         systemfonts_1.3.2  xfun_0.62          tidyselect_1.2.1  
+[37] rstudioapi_0.19.0  knitr_1.52         farver_2.1.2       htmltools_0.5.9   
+[41] rmarkdown_2.32     labeling_0.4.3     compiler_4.6.2     S7_0.2.2          </code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="висновок" class="level2">
+<h2 class="anchored" data-anchor-id="висновок">Висновок</h2>
+<ol type="1">
+<li><strong>Обґрунтування setup.</strong> Одиниця кластеризації — рік; шість кількісних ознак ЛР4; евклідова відстань після стандартизації (ознаки в різних одиницях). Ідентифікатор year до матриці відстаней не включено: він мітить спостереження, а не характеризує його.</li>
+<li><strong>Вибір <span class="math inline">\(K\)</span>.</strong> Метод ліктя вказує на <span class="math inline">\(K = 2\)</span>–<span class="math inline">\(3\)</span>; формальний максимум силуету (<span class="math inline">\(K = 5\)</span>) відхилено як артефакт однопточного кластера при малих <span class="math inline">\(n\)</span>; робочий вибір — <span class="math inline">\(K = 3\)</span> (силует 0.43, непорожні змістовні групи). Критерії частково розходяться, тому <span class="math inline">\(K\)</span> — компроміс метрик та змістовності, а не «істинна» кількість груп.</li>
+<li><strong>Стійкість.</strong> K-means чутливий до ініціалізації при nstart = 1 (розкид WCSS по зернах), але з nstart = 30 результат відтворюваний. Ієрархічна кластеризація детермінована; склад груп Ward і k-means збігається, complete linkage дає відмінніші дрібніші групи.</li>
+<li><strong>Структура розбиття.</strong> Кластери відповідають етапам демографічного переходу (ранній/пізній), і в проєкції PC1–PC2 роки впорядковані вздовж PC1 хронологічно. Це <em>профілі ознак, за якими будувалося розбиття</em>, а не незалежне відкриття «типів років».</li>
+<li><strong>Аномалії.</strong> Кандидати відібрані за 95-м перцентилем відстані до центроїда; це роки з нетиповим поєднанням показників (кризові/воєнні періоди). Велика відстань не доводить помилковості: джерело для цих років уже перевірено у ЛР3, спостереження збережено.</li>
+<li><strong>Обмеження.</strong> Малі <span class="math inline">\(n\)</span> (16 років) роблять силует і WCSS чутливими до одиничних спостережень; стандартизація не прибирає сильні кореляції ознак; PCA-проєкція — лише двовимірна тінь шестивимірного простору; високий силует не доводить змістовності груп, а два критерії вибору <span class="math inline">\(K\)</span> можуть розходитися.</li>
+</ol>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+      window.quartoDecorateExternalLinks = function (root) {
+     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+          if (!link.classList.contains('no-external-icon')) {
+          }
+        }
+      }
+      };
+      window.quartoDecorateExternalLinks(window.document);
+    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
+    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
+    const hideOnEscAndFocusOut = {
+      name: 'hideOnEscAndFocusOut',
+      defaultValue: true,
+      fn(instance) {
+        const dismiss = () => {
+          // A show scheduled by the trigger delay would otherwise reopen it
+          instance.clearDelayTimeouts();
+          instance.hide();
+        };
+        const onKeyDown = (event) => {
+          if (event.key !== 'Escape') {
+            return;
+          }
+          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
+          // except an open reveal.js slide menu, which Esc should close too.
+          // The menu handles keys only when its keyboard option is on.
+          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
+            window.Reveal.getConfig().menu?.keyboard !== false;
+          if (!menuHandlesEsc) {
+            event.stopPropagation();
+          }
+          if (instance.popper.contains(window.document.activeElement)) {
+            // Disabled while refocusing so the focus trigger does not reopen it
+            instance.disable();
+            instance.reference.focus();
+            instance.enable();
+          }
+          dismiss();
+        };
+        const onFocusOut = (event) => {
+          const target = event.relatedTarget;
+          if (target && !instance.reference.contains(target) &&
+              !instance.popper.contains(target)) {
+            dismiss();
+          }
+        };
+        // On the trigger too: a click trigger (code-annotations: select) has no
+        // blur handling. Attached for the instance's lifetime so leaving the
+        // trigger also cancels a show still pending on the trigger delay.
+        instance.reference.addEventListener('focusout', onFocusOut);
+        return {
+          onShow() {
+            window.document.addEventListener('keydown', onKeyDown, true);
+            instance.popper.addEventListener('focusout', onFocusOut);
+          },
+          onHide() {
+            window.document.removeEventListener('keydown', onKeyDown, true);
+            instance.popper.removeEventListener('focusout', onFocusOut);
+          },
+          onDestroy() {
+            instance.reference.removeEventListener('focusout', onFocusOut);
+          },
+        };
+      },
+    };
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+        plugins: [hideOnEscAndFocusOut],
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          // Each band is positioned against its own containing block, which is
+          // not the offsetParent of the lines, so place it from client rects.
+          const placeBand = (band, firstEl, lastEl, codeBlock) => {
+            const container = band.offsetParent;
+            if (container === null) {
+              return;
+            }
+            const containerRect = container.getBoundingClientRect();
+            // Reveal.js scales slides with a transform, so convert client
+            // pixels back to the CSS pixels of the container.
+            const scale = containerRect.height / container.offsetHeight || 1;
+            const firstRect = firstEl.getBoundingClientRect();
+            const lastRect = lastEl.getBoundingClientRect();
+            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
+            const height = (lastRect.bottom - firstRect.top) / scale;
+            band.style.top = top - 2 + "px";
+            band.style.height = height + 4 + "px";
+            if (codeBlock) {
+              // Without the copy button wrapper, the containing block is wider
+              // than the code block, so span the code block explicitly.
+              const blockRect = codeBlock.getBoundingClientRect();
+              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
+              band.style.width = blockRect.width / scale + "px";
+            }
+          };
+          if (lineIds.length > 0) {
+            const el = window.document.getElementById(lineIds[0]);
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const parent = el.parentElement.parentElement;
+            // cook up a div (if necessary) and position it
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            placeBand(gutterDiv, el, lastEl);
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+  <script type="application/javascript">
+  window.quartoScrollableRegionsLabels = {"code":"Scrollable code","output":"Scrollable output"};
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<script src="lab_5_files/libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

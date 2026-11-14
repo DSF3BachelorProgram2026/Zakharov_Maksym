@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="uk" xml:lang="uk"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.11.9">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="© Захаров Максим, 2026">
+<meta name="description" content="Документ зроблено в Quarto">
+
+<title>Лабораторна робота № 4. Зниження розмірності даних методом головних компонент</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="lab_4_files/libs/clipboard/clipboard.min.js"></script>
+<script src="lab_4_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="lab_4_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="lab_4_files/libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
+<script src="lab_4_files/libs/quarto-html/popper.min.js"></script>
+<script src="lab_4_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="lab_4_files/libs/quarto-html/anchor.min.js"></script>
+<link href="lab_4_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="lab_4_files/libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="lab_4_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="lab_4_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="lab_4_files/libs/bootstrap/bootstrap-4f411e114d711e524ac8968afe1debc7.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<style>html{ scroll-behavior: smooth; }</style>
+<link href="lab_4_files/libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+
+<script src="lab_4_files/libs/pagedtable-1.1/js/pagedtable.js"></script>
+
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#індивідуальне-завдання" id="toc-індивідуальне-завдання" class="nav-link active" data-scroll-target="#індивідуальне-завдання">Індивідуальне завдання</a></li>
+  <li><a href="#хід-роботи" id="toc-хід-роботи" class="nav-link" data-scroll-target="#хід-роботи">Хід роботи</a>
+  <ul class="collapse">
+  <li><a href="#крок-1.-підготовка-середовища" id="toc-крок-1.-підготовка-середовища" class="nav-link" data-scroll-target="#крок-1.-підготовка-середовища">Крок 1. Підготовка середовища</a></li>
+  <li><a href="#крок-2.-завантаження-даних-лр2лр3" id="toc-крок-2.-завантаження-даних-лр2лр3" class="nav-link" data-scroll-target="#крок-2.-завантаження-даних-лр2лр3">Крок 2. Завантаження даних ЛР2–ЛР3</a></li>
+  <li><a href="#крок-3.-формування-матриці-ознак" id="toc-крок-3.-формування-матриці-ознак" class="nav-link" data-scroll-target="#крок-3.-формування-матриці-ознак">Крок 3. Формування матриці ознак</a></li>
+  <li><a href="#крок-4.-перевірки-придатності-ознак-для-pca" id="toc-крок-4.-перевірки-придатності-ознак-для-pca" class="nav-link" data-scroll-target="#крок-4.-перевірки-придатності-ознак-для-pca">Крок 4. Перевірки придатності ознак для PCA</a></li>
+  <li><a href="#крок-5.-масштаб-ознак-і-вибір-стандартизації" id="toc-крок-5.-масштаб-ознак-і-вибір-стандартизації" class="nav-link" data-scroll-target="#крок-5.-масштаб-ознак-і-вибір-стандартизації">Крок 5. Масштаб ознак і вибір стандартизації</a></li>
+  <li><a href="#крок-6.-побудова-pca" id="toc-крок-6.-побудова-pca" class="nav-link" data-scroll-target="#крок-6.-побудова-pca">Крок 6. Побудова PCA</a></li>
+  <li><a href="#крок-7.-скільки-компонент-залишити" id="toc-крок-7.-скільки-компонент-залишити" class="nav-link" data-scroll-target="#крок-7.-скільки-компонент-залишити">Крок 7. Скільки компонент залишити?</a></li>
+  <li><a href="#крок-8.-інтерпретація-навантажень" id="toc-крок-8.-інтерпретація-навантажень" class="nav-link" data-scroll-target="#крок-8.-інтерпретація-навантажень">Крок 8. Інтерпретація навантажень</a></li>
+  <li><a href="#крок-9.-двовимірна-проєкція-спостережень" id="toc-крок-9.-двовимірна-проєкція-спостережень" class="nav-link" data-scroll-target="#крок-9.-двовимірна-проєкція-спостережень">Крок 9. Двовимірна проєкція спостережень</a></li>
+  <li><a href="#крок-10.-звязок-pca-із-svd" id="toc-крок-10.-звязок-pca-із-svd" class="nav-link" data-scroll-target="#крок-10.-звязок-pca-із-svd">Крок 10. Зв’язок PCA із SVD</a></li>
+  <li><a href="#крок-11.-втрати-при-реконструкції" id="toc-крок-11.-втрати-при-реконструкції" class="nav-link" data-scroll-target="#крок-11.-втрати-при-реконструкції">Крок 11. Втрати при реконструкції</a></li>
+  <li><a href="#крок-12.-порівняння-pca-з-масштабуванням-і-без" id="toc-крок-12.-порівняння-pca-з-масштабуванням-і-без" class="nav-link" data-scroll-target="#крок-12.-порівняння-pca-з-масштабуванням-і-без">Крок 12. Порівняння: PCA з масштабуванням і без</a></li>
+  <li><a href="#крок-13.-підготовка-артефактів-для-лр5" id="toc-крок-13.-підготовка-артефактів-для-лр5" class="nav-link" data-scroll-target="#крок-13.-підготовка-артефактів-для-лр5">Крок 13. Підготовка артефактів для ЛР5</a></li>
+  <li><a href="#крок-14.-фіксація-середовища" id="toc-крок-14.-фіксація-середовища" class="nav-link" data-scroll-target="#крок-14.-фіксація-середовища">Крок 14. Фіксація середовища</a></li>
+  </ul></li>
+  <li><a href="#висновок" id="toc-висновок" class="nav-link" data-scroll-target="#висновок">Висновок</a></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content" tabindex="-1">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Лабораторна робота № 4. Зниження розмірності даних методом головних компонент</h1>
+</div>
+
+<div>
+  <div class="description">
+    Документ зроблено в <a href="https://quarto.org/">Quarto</a>
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>© Захаров Максим, 2026 </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">14.11.2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><strong>Мета:</strong> опанувати побудову й інтерпретацію методу головних компонент (Principal Component Analysis, PCA) на даних наскрізного проєкту: сформувати матрицю ознак, обґрунтувати масштабування, обчислити головні компоненти, оцінити пояснену дисперсію, інтерпретувати навантаження й проєкції, дослідити втрати інформації при зниженні розмірності.</p>
+<section id="індивідуальне-завдання" class="level2">
+<h2 class="anchored" data-anchor-id="індивідуальне-завдання">Індивідуальне завдання</h2>
+<p>Дані — демографічний набір щодо України за 1950–2026 рр. (Worldometer, отриманий через html/json mining у ЛР2, файл data/raw/median_year.json; той самий набір використано у ЛР3). Початкові файли не змінюємо.</p>
+<p>Виконані пункти індивідуального завдання:</p>
+<ol type="1">
+<li>сформовано матрицю з шести кількісних ознак на рівні <em>року</em> (спостереження), з двома похідними ознаками;</li>
+<li>перевірено пропуски, константні стовпці, дублікати та масштаб; обґрунтовано scale. = TRUE;</li>
+<li>виконано PCA (stats::prcomp()), побудовано таблицю власних значень та часток поясненої дисперсії;</li>
+<li>порівняно проєкцію на дві компоненти з кількістю компонент, необхідною для 80% дисперсії;</li>
+<li>проінтерпретовано навантаження PC1 і PC2, побудовано проєкцію спостережень і досліджено реконструкційну похибку;</li>
+<li>порівняно PCA зі стандартизацією та лише з центруванням;</li>
+<li>сформульовано висновок щодо збереження/втрати інформації та обмежень PCA.</li>
+</ol>
+</section>
+<section id="хід-роботи" class="level2">
+<h2 class="anchored" data-anchor-id="хід-роботи">Хід роботи</h2>
+<section id="крок-1.-підготовка-середовища" class="level3">
+<h3 class="anchored" data-anchor-id="крок-1.-підготовка-середовища">Крок 1. Підготовка середовища</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages(c("tidyverse", "jsonlite"))</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(jsonlite)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">"figures"</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">"data/processed"</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="крок-2.-завантаження-даних-лр2лр3" class="level3">
+<h3 class="anchored" data-anchor-id="крок-2.-завантаження-даних-лр2лр3">Крок 2. Завантаження даних ЛР2–ЛР3</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>demo_path <span class="ot">&lt;-</span> <span class="st">"data/raw/median_year.json"</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(demo_path)) {</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stop</span>(<span class="st">"Не знайдено data/raw/median_year.json"</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>demo <span class="ot">&lt;-</span> <span class="fu">fromJSON</span>(demo_path) <span class="sc">|&gt;</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(year, total, medianAge, fertilityRate, urban, migrantNet, yearlyGrowthRate)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(demo)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 17
+Columns: 7
+$ year             &lt;int&gt; 1950, 1955, 1960, 1965, 1970, 1975, 1980, 1985, 1990,…
+$ total            &lt;int&gt; 37310887, 39859711, 42824093, 45386892, 47261306, 488…
+$ medianAge        &lt;dbl&gt; 26.423, 27.520, 28.342, 29.125, 31.262, 33.054, 32.51…
+$ fertilityRate    &lt;dbl&gt; 2.447, 2.312, 2.285, 1.943, 2.078, 2.049, 1.949, 2.03…
+$ urban            &lt;int&gt; 13240665, 16557439, 19962621, 22924810, 25817971, 284…
+$ migrantNet       &lt;int&gt; 96287, 130668, 52281, 69354, -48335, 15336, 47406, 55…
+$ yearlyGrowthRate &lt;dbl&gt; NA, 0.013725217, 0.013725483, 0.009693544, 0.00606795…</code></pre>
+</div>
+</div>
+<p>Одиниця спостереження — <em>один рік</em> демографічної історії України (1950–2026, інтервали 5 років до 2020, потім 2025 і 2026). Змінні:</p>
+<ul>
+<li>total — загальна чисельність населення України на відповідний рік, у осіб. Це підсумкова величина: всі інші демографічні показники набору (урбанізація, міграція, приріст) обчислюються відносно неї. У наборі змінюється від ≈37.3 млн (1950) до піку ≈52 млн (1990) з подальшим тривалим скороченням;</li>
+<li>urban — абсолютна чисельність міського населення, у осіб. Характеризує рівень урбанізації, але у <em>сирому</em> вигляді залежить від загальної чисельності населення (масштабується разом з total), тому в матриці ознак використовується похідна безрозмірна ознака urban_share = urban / total — частка міських мешканців;</li>
+<li>fertilityRate — коефіцієнт народжуваності (total fertility rate): середня кількість дітей, яку народила б одна жінка за все життя при збереженні поточних вікових коефіцієнтів народжуваності. Ключова межа — 2.1 (рівень простого відтворення покоління): останній раз Україна була вище цієї межі у 1960 р.;</li>
+<li>medianAge — медіанний вік населення: вік, який ділить населення навпіл (половина людей молодша, половина — старша за це значення). Компактний індикатор старіння населення; чутливіший до демографічної структури, ніж середній вік, бо не зсунутий довгим хвостом довгожителів;</li>
+<li>migrantNet — нетто-міграція за рік, у осіб: різниця між кількістю прибулих та вибулих (іміграція мінус еміграція). Додатне значення — населення зростає за рахунок міграції, від’ємне — скорочується. У сирому вигляді залежить від чисельності населення, тому в матриці ознак використовується похідна ознака mig_rate = migrantNet / total × 1000 — сальдо міграції на 1000 осіб;</li>
+<li>yearlyGrowthRate — відносний річний приріст населення: річна зміна чисельності, поділена на чисельність попереднього року (частка, а не абс. числа). Поєднує обидва джерела динаміки — природний рух (народжуваність мінус смертність) і міграцію. Від’ємні значення з кінця 1990-х відображають депопуляцію.</li>
+</ul>
+</section>
+<section id="крок-3.-формування-матриці-ознак" class="level3">
+<h3 class="anchored" data-anchor-id="крок-3.-формування-матриці-ознак">Крок 3. Формування матриці ознак</h3>
+<p>Створюємо шість кількісних ознак на узгодженому рівні «рік». Дві з них — похідні:</p>
+<ul>
+<li>urban_share — частка міського населення (urban / total): характеризує урбанізацію в <em>безрозмірній</em> формі; сира кількість urban майже повністю дублювала б масштаб total;</li>
+<li>mig_rate — нетто-міграція на 1000 осіб населення (migrantNet / total * 1000): міграція в масштабі, порівнянному між роками з різною чисельністю населення.</li>
+</ul>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>features <span class="ot">&lt;-</span> demo <span class="sc">|&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transmute</span>(</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    year,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">pop_mln      =</span> total <span class="sc">/</span> <span class="fl">1e6</span>,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">urban_share  =</span> urban <span class="sc">/</span> total,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">fertility    =</span> fertilityRate,</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">median_age   =</span> medianAge,</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">mig_rate     =</span> migrantNet <span class="sc">/</span> total <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">growth_rate  =</span> yearlyGrowthRate</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>feature_names <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"pop_mln"</span>, <span class="st">"urban_share"</span>, <span class="st">"fertility"</span>, <span class="st">"median_age"</span>, <span class="st">"mig_rate"</span>, <span class="st">"growth_rate"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="крок-4.-перевірки-придатності-ознак-для-pca" class="level3">
+<h3 class="anchored" data-anchor-id="крок-4.-перевірки-придатності-ознак-для-pca">Крок 4. Перевірки придатності ознак для PCA</h3>
+<p>Пропуски, константні стовпці, дублікати ключа, фінітність:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>checks <span class="ot">&lt;-</span> features <span class="sc">|&gt;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_rows            =</span> <span class="fu">n</span>(),</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">duplicated_years  =</span> <span class="fu">anyDuplicated</span>(year),</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">across</span>(<span class="fu">all_of</span>(feature_names),</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">list</span>(<span class="at">missing  =</span> <span class="sc">~</span><span class="fu">sum</span>(<span class="fu">is.na</span>(.x)),</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">nonfin   =</span> <span class="sc">~</span><span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.finite</span>(.x)),</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>           <span class="at">distinct =</span> <span class="sc">~</span><span class="fu">n_distinct</span>(.x),</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>           <span class="at">sd       =</span> <span class="sc">~</span><span class="fu">sd</span>(.x)))</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>checks <span class="sc">|&gt;</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="sc">-</span>n_rows, <span class="at">names_to =</span> <span class="st">"check"</span>, <span class="at">values_to =</span> <span class="st">"value"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["n_rows"],"name":[1],"type":["int"],"align":["right"]},{"label":["check"],"name":[2],"type":["chr"],"align":["left"]},{"label":["value"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"17","2":"duplicated_years","3":"0.0000000"},{"1":"17","2":"pop_mln_missing","3":"0.0000000"},{"1":"17","2":"pop_mln_nonfin","3":"0.0000000"},{"1":"17","2":"pop_mln_distinct","3":"17.0000000"},{"1":"17","2":"pop_mln_sd","3":"4.6877801"},{"1":"17","2":"urban_share_missing","3":"0.0000000"},{"1":"17","2":"urban_share_nonfin","3":"0.0000000"},{"1":"17","2":"urban_share_distinct","3":"17.0000000"},{"1":"17","2":"urban_share_sd","3":"0.1147422"},{"1":"17","2":"fertility_missing","3":"0.0000000"},{"1":"17","2":"fertility_nonfin","3":"0.0000000"},{"1":"17","2":"fertility_distinct","3":"17.0000000"},{"1":"17","2":"fertility_sd","3":"0.4904690"},{"1":"17","2":"median_age_missing","3":"0.0000000"},{"1":"17","2":"median_age_nonfin","3":"0.0000000"},{"1":"17","2":"median_age_distinct","3":"17.0000000"},{"1":"17","2":"median_age_sd","3":"5.0055449"},{"1":"17","2":"mig_rate_missing","3":"0.0000000"},{"1":"17","2":"mig_rate_nonfin","3":"0.0000000"},{"1":"17","2":"mig_rate_distinct","3":"17.0000000"},{"1":"17","2":"mig_rate_sd","3":"10.6508085"},{"1":"17","2":"growth_rate_missing","3":"1.0000000"},{"1":"17","2":"growth_rate_nonfin","3":"1.0000000"},{"1":"17","2":"growth_rate_distinct","3":"17.0000000"},{"1":"17","2":"growth_rate_sd","3":"NA"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>Перевіримо, які рядки містять пропуски:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>features <span class="sc">|&gt;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">if_any</span>(<span class="fu">all_of</span>(feature_names), <span class="sc">~</span><span class="fu">is.na</span>(.x) <span class="sc">|</span> <span class="sc">!</span><span class="fu">is.finite</span>(.x))) <span class="sc">|&gt;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(year, <span class="fu">all_of</span>(feature_names))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["year"],"name":[1],"type":["int"],"align":["right"]},{"label":["pop_mln"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["urban_share"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["fertility"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["median_age"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["mig_rate"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["growth_rate"],"name":[7],"type":["dbl"],"align":["right"]}],"data":[{"1":"1950","2":"37.31089","3":"0.354874","4":"2.447","5":"26.423","6":"2.580668","7":"NA"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>Пропуски у growth_rate і mig_rate є лише для 1950 р. (у джерелі yearlyGrowthRate і частина полів за 1950 р. відсутні — немає попереднього року для обчислення). Такі рядки не можна «винайти», тому для PCA залишаємо лише повні рядки:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>analysis_data <span class="ot">&lt;-</span> features <span class="sc">|&gt;</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">if_all</span>(<span class="fu">all_of</span>(feature_names), <span class="sc">~</span><span class="fu">is.finite</span>(.x)))</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> analysis_data <span class="sc">|&gt;</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">all_of</span>(feature_names)) <span class="sc">|&gt;</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.matrix</span>()</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nrow</span>(X) <span class="sc">&gt;</span> <span class="dv">2</span>,</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="sc">!</span><span class="fu">anyDuplicated</span>(analysis_data<span class="sc">$</span>year),</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">all</span>(<span class="fu">apply</span>(X, <span class="dv">2</span>, sd) <span class="sc">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(analysis_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 16</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">cor</span>(X), <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>            pop_mln urban_share fertility median_age mig_rate growth_rate
+pop_mln       1.000       0.068     0.170     -0.211   -0.504      -0.674
+urban_share   0.068       1.000    -0.861      0.917    0.315      -0.149
+fertility     0.170      -0.861     1.000     -0.922   -0.285       0.217
+median_age   -0.211       0.917    -0.922      1.000    0.319      -0.138
+mig_rate     -0.504       0.315    -0.285      0.319    1.000       0.713
+growth_rate  -0.674      -0.149     0.217     -0.138    0.713       1.000</code></pre>
+</div>
+</div>
+<p>Кореляційна матриця: найсильніші зв’язки — від’ємні між fertility та median_age, між growth_rate та median_age, додатний між pop_mln та urban_share. Це очікувано: демографічні показники рухаються спільним часовим трендом, і PCA має «згорнути» ці скорельовані групи в небагато компонент.</p>
+</section>
+<section id="крок-5.-масштаб-ознак-і-вибір-стандартизації" class="level3">
+<h3 class="anchored" data-anchor-id="крок-5.-масштаб-ознак-і-вибір-стандартизації">Крок 5. Масштаб ознак і вибір стандартизації</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>analysis_data <span class="sc">|&gt;</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="fu">all_of</span>(feature_names), <span class="at">names_to =</span> <span class="st">"feature"</span>, <span class="at">values_to =</span> <span class="st">"value"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> feature, <span class="at">y =</span> value)) <span class="sc">+</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">fill =</span> <span class="st">"#c7d2fe"</span>) <span class="sc">+</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Масштаби вихідних ознак"</span>, <span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"Значення"</span>) <span class="sc">+</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lab_4_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Масштаби несумісні: чисельність населення — десятки мільйонів, коефіцієнт народжуваності — близько 1, частки — від 0 до 1, темп приросту — тисячні частки. PCA мінімізує дисперсію, тому без масштабування PC1 повністю «з’їла» б pop_mln, а решта ознак не вплинула б на структуру. Отже, обґрунтовано center = TRUE, scale. = TRUE (PCA над кореляційною матрицею).</p>
+</section>
+<section id="крок-6.-побудова-pca" class="level3">
+<h3 class="anchored" data-anchor-id="крок-6.-побудова-pca">Крок 6. Побудова PCA</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>pca <span class="ot">&lt;-</span> <span class="fu">prcomp</span>(X, <span class="at">center =</span> <span class="cn">TRUE</span>, <span class="at">scale. =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(pca)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Importance of components:
+                          PC1    PC2     PC3     PC4     PC5     PC6
+Standard deviation     1.7309 1.4856 0.74730 0.41094 0.25490 0.06747
+Proportion of Variance 0.4994 0.3678 0.09308 0.02815 0.01083 0.00076
+Cumulative Proportion  0.4994 0.8672 0.96027 0.98841 0.99924 1.00000</code></pre>
+</div>
+</div>
+<p>pca<span class="math inline">\(x — координати спостережень (*scores*), pca\)</span>rotation — навантаження (<em>loadings</em>), pca$sdev — стандартні відхилення компонент.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>eigenvalues <span class="ot">&lt;-</span> pca<span class="sc">$</span>sdev<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>variance_table <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">component  =</span> <span class="fu">paste0</span>(<span class="st">"PC"</span>, <span class="fu">seq_along</span>(eigenvalues)),</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">eigenvalue =</span> <span class="fu">round</span>(eigenvalues, <span class="dv">4</span>),</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">explained  =</span> <span class="fu">round</span>(eigenvalues <span class="sc">/</span> <span class="fu">sum</span>(eigenvalues), <span class="dv">4</span>),</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">cumulative =</span> <span class="fu">round</span>(<span class="fu">cumsum</span>(eigenvalues <span class="sc">/</span> <span class="fu">sum</span>(eigenvalues)), <span class="dv">4</span>)</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>variance_table</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["component"],"name":[1],"type":["chr"],"align":["left"]},{"label":["eigenvalue"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["explained"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["cumulative"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"PC1","2":"2.9962","3":"0.4994","4":"0.4994"},{"1":"PC2","2":"2.2070","3":"0.3678","4":"0.8672"},{"1":"PC3","2":"0.5585","3":"0.0931","4":"0.9603"},{"1":"PC4","2":"0.1689","3":"0.0281","4":"0.9884"},{"1":"PC5","2":"0.0650","3":"0.0108","4":"0.9992"},{"1":"PC6","2":"0.0046","3":"0.0008","4":"1.0000"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>Власні значення коваріаційної матриці стандартизованих даних показують дисперсію кожної компоненти. Для стандартизованих даних середнє власне значення дорівнює 1, тому компоненти з <span class="math inline">\(\lambda &gt; 1\)</span> несуть більше інформації, ніж одна вихідна ознака (критерій Кайзера).</p>
+</section>
+<section id="крок-7.-скільки-компонент-залишити" class="level3">
+<h3 class="anchored" data-anchor-id="крок-7.-скільки-компонент-залишити">Крок 7. Скільки компонент залишити?</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>p_scree <span class="ot">&lt;-</span> variance_table <span class="sc">|&gt;</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">seq_along</span>(explained), <span class="at">y =</span> explained)) <span class="sc">+</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">fill =</span> <span class="st">"#6366f1"</span>) <span class="sc">+</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">group =</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(variance_table))) <span class="sc">+</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Scree plot"</span>, <span class="at">x =</span> <span class="st">"Номер компоненти"</span>, <span class="at">y =</span> <span class="st">"Частка дисперсії"</span>) <span class="sc">+</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>p_scree</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lab_4_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>threshold <span class="ot">&lt;-</span> <span class="fl">0.80</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>k80 <span class="ot">&lt;-</span> <span class="fu">which</span>(variance_table<span class="sc">$</span>cumulative <span class="sc">&gt;=</span> threshold)[<span class="dv">1</span>]</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">threshold         =</span> threshold,</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">required_components =</span> k80,</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">explained_at_k    =</span> variance_table<span class="sc">$</span>cumulative[k80]</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["threshold"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["required_components"],"name":[2],"type":["int"],"align":["right"]},{"label":["explained_at_k"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"0.8","2":"2","3":"0.8672"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p><strong>Порівняння двох критеріїв.</strong> Проєкція на площину PC1–PC2 пояснює лише 87% дисперсії — для <em>візуалізації</em> цього достатньо, щоб побачити основну структуру, але 13% варіації губиться. Для подальшого кількісного аналізу (наприклад, кластеризації у ЛР5) за критерієм 80% потрібно 2 компонент (накопичено 87%). Це два різні рішення, які не слід ототожнювати.</p>
+</section>
+<section id="крок-8.-інтерпретація-навантажень" class="level3">
+<h3 class="anchored" data-anchor-id="крок-8.-інтерпретація-навантажень">Крок 8. Інтерпретація навантажень</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>loadings <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(pca<span class="sc">$</span>rotation, <span class="at">rownames =</span> <span class="st">"feature"</span>)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>loadings</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["feature"],"name":[1],"type":["chr"],"align":["left"]},{"label":["PC1"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["PC2"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["PC3"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["PC4"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["PC5"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["PC6"],"name":[7],"type":["dbl"],"align":["right"]}],"data":[{"1":"pop_mln","2":"0.17359404","3":"-0.5266565","4":"-0.7277999","5":"-0.02634452","6":"0.12232644","7":"-0.3835983"},{"1":"urban_share","2":"-0.52723715","3":"-0.1927472","4":"-0.2884309","5":"-0.46701496","6":"0.03984145","7":"0.6180508"},{"1":"fertility","2":"0.53867831","3":"0.1604404","4":"-0.1979758","5":"-0.34578541","6":"-0.69642625","7":"0.2007812"},{"1":"median_age","2":"-0.55553090","3":"-0.1237527","4":"0.1552869","5":"-0.18608124","6":"-0.56682344","7":"-0.5440971"},{"1":"mig_rate","2":"-0.30355877","3":"0.4794306","4":"-0.5296176","5":"0.57793915","6":"-0.23331740","7":"0.0951464"},{"1":"growth_rate","2":"-0.03081031","3":"0.6438726","4":"-0.2081147","5":"-0.54129064","6":"0.35030496","7":"-0.3542005"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>p_loadings <span class="ot">&lt;-</span> loadings <span class="sc">|&gt;</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(feature, PC1, PC2) <span class="sc">|&gt;</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="fu">c</span>(PC1, PC2), <span class="at">names_to =</span> <span class="st">"component"</span>, <span class="at">values_to =</span> <span class="st">"loading"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(feature, <span class="fu">abs</span>(loading)), <span class="at">y =</span> loading)) <span class="sc">+</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">fill =</span> <span class="st">"#6366f1"</span>) <span class="sc">+</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>component) <span class="sc">+</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Навантаження ознак"</span>, <span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"Коефіцієнт"</span>) <span class="sc">+</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>p_loadings</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lab_4_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><em>Інтерпретація.</em> PC1 — це <strong>«демографічний перехід»</strong>: однаковими за модулем навантаженнями він поєднує ознаки, які монотонно змінювалися з часом (median_age, urban_share, fertility, growth_rate, pop_mln). Знак довільний; за обраного розв’язку роки з високою народжуваністю та молодим населенням мають низькі значення PC1, сучасні роки — високі. PC2 навантажена насамперед на mig_rate та growth_rate, тобто відображає варіацію міграційної складової, яка не пояснюється спільним трендом. PC1 і PC2 слід читати як <em>нові синтетичні напрями</em>, а не як вихідні змінні.</p>
+</section>
+<section id="крок-9.-двовимірна-проєкція-спостережень" class="level3">
+<h3 class="anchored" data-anchor-id="крок-9.-двовимірна-проєкція-спостережень">Крок 9. Двовимірна проєкція спостережень</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>scores <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(pca<span class="sc">$</span>x[, <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, <span class="at">drop =</span> <span class="cn">FALSE</span>]) <span class="sc">|&gt;</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(analysis_data <span class="sc">|&gt;</span> <span class="fu">select</span>(year))</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>p_scores <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(scores, <span class="fu">aes</span>(<span class="at">x =</span> PC1, <span class="at">y =</span> PC2)) <span class="sc">+</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_path</span>(<span class="at">alpha =</span> <span class="fl">0.4</span>, <span class="at">colour =</span> <span class="st">"grey50"</span>) <span class="sc">+</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">colour =</span> year), <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_viridis_c</span>() <span class="sc">+</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Проєкція років на площину PC1--PC2"</span>,</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Лінія — хронологічний порядок; колір — рік"</span>,</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"PC1: демографічний перехід (старіння, урбанізація, зниження народжуваності)"</span>,</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"PC2: міграційна складова"</span>,</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="st">"Рік"</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>p_scores</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lab_4_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><em>Інтерпретація:</em> точки впорядковані вздовж PC1 майже строго за часом — PCA «розпізнав» часовий тренд без жодної часової змінної. Відхилення від траєкторії (PC2) припадає на роки з аномальною міграцією. На графіку видно послідовність і плавні зміщення, але <strong>зорові скупчення не є кластерами</strong>: кластерний аналіз (ЛР5) вимагає окремої процедури з формальним критерієм.</p>
+</section>
+<section id="крок-10.-звязок-pca-із-svd" class="level3">
+<h3 class="anchored" data-anchor-id="крок-10.-звязок-pca-із-svd">Крок 10. Зв’язок PCA із SVD</h3>
+<p>Для стандартизованої матриці <span class="math inline">\(Z\)</span> сингулярний розклад <span class="math inline">\(Z = UDV^{\mathsf{T}}\)</span>: праві сингулярні вектори <span class="math inline">\(V\)</span> — напрями головних компонент, а квадрати сингулярних чисел, поділені на <span class="math inline">\(n-1\)</span>, — власні значення коваріаційної матриці.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>Z  <span class="ot">&lt;-</span> <span class="fu">scale</span>(X, <span class="at">center =</span> <span class="cn">TRUE</span>, <span class="at">scale =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>sv <span class="ot">&lt;-</span> <span class="fu">svd</span>(Z)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="fu">all.equal</span>(<span class="fu">unname</span>(sv<span class="sc">$</span>d<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> (<span class="fu">nrow</span>(Z) <span class="sc">-</span> <span class="dv">1</span>)),</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>          <span class="fu">unname</span>(pca<span class="sc">$</span>sdev<span class="sc">^</span><span class="dv">2</span>), <span class="at">tolerance =</span> <span class="fl">1e-10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] TRUE</code></pre>
+</div>
+</div>
+<p>Результат TRUE підтверджує: prcomp() реалізує PCA через SVD, і обчислення узгоджені з теорією.</p>
+</section>
+<section id="крок-11.-втрати-при-реконструкції" class="level3">
+<h3 class="anchored" data-anchor-id="крок-11.-втрати-при-реконструкції">Крок 11. Втрати при реконструкції</h3>
+<p>Порівняємо точність відновлення стандартизованої матриці за <span class="math inline">\(k = 1, \dots, 6\)</span> компонентами:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>reconstruction <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(<span class="fu">seq_len</span>(<span class="fu">ncol</span>(X)), <span class="cf">function</span>(k) {</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  Vk <span class="ot">&lt;-</span> pca<span class="sc">$</span>rotation[, <span class="fu">seq_len</span>(k), drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  Tk <span class="ot">&lt;-</span> pca<span class="sc">$</span>x[, <span class="fu">seq_len</span>(k), drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  Z_hat <span class="ot">&lt;-</span> Tk <span class="sc">%*%</span> <span class="fu">t</span>(Vk)</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">k =</span> k, <span class="at">mse =</span> <span class="fu">mean</span>((Z <span class="sc">-</span> Z_hat)<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>reconstruction</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["k"],"name":[1],"type":["int"],"align":["right"]},{"label":["mse"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"4.693473e-01"},{"1":"2","2":"1.245096e-01"},{"1":"3","2":"3.724993e-02"},{"1":"4","2":"1.086327e-02"},{"1":"5","2":"7.112090e-04"},{"1":"6","2":"7.545603e-31"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>p_recon <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(reconstruction, <span class="fu">aes</span>(k, mse)) <span class="sc">+</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq_len</span>(<span class="fu">ncol</span>(X))) <span class="sc">+</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Похибка реконструкції"</span>,</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Кількість компонент"</span>, <span class="at">y =</span> <span class="st">"MSE"</span>) <span class="sc">+</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>p_recon</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lab_4_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>MSE монотонно спадає і при <span class="math inline">\(k = p = 6\)</span> дорівнює нулю: повний набір компонент — це точна заміна базису, жодна інформація не втрачається. При менших <span class="math inline">\(k\)</span> втрачена дисперсія дорівнює сумі власних значень відкинутих компонент, тому похибка не може зменшуватися при зменшенні <span class="math inline">\(k\)</span> — кожна наступна компонента за означенням додає максимум можливої дисперсії.</p>
+</section>
+<section id="крок-12.-порівняння-pca-з-масштабуванням-і-без" class="level3">
+<h3 class="anchored" data-anchor-id="крок-12.-порівняння-pca-з-масштабуванням-і-без">Крок 12. Порівняння: PCA з масштабуванням і без</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>pca_noscale <span class="ot">&lt;-</span> <span class="fu">prcomp</span>(X, <span class="at">center =</span> <span class="cn">TRUE</span>, <span class="at">scale. =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>compare <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">component   =</span> <span class="fu">paste0</span>(<span class="st">"PC"</span>, <span class="fu">seq_along</span>(pca<span class="sc">$</span>sdev)),</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">scaled      =</span> pca<span class="sc">$</span>sdev<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> <span class="fu">sum</span>(pca<span class="sc">$</span>sdev<span class="sc">^</span><span class="dv">2</span>),</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">centered_only =</span> pca_noscale<span class="sc">$</span>sdev<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> <span class="fu">sum</span>(pca_noscale<span class="sc">$</span>sdev<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(scaled<span class="sc">:</span>centered_only, <span class="sc">~</span><span class="fu">round</span>(.x, <span class="dv">4</span>)))</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>compare</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["component"],"name":[1],"type":["chr"],"align":["left"]},{"label":["scaled"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["centered_only"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"PC1","2":"0.4994","3":"0.7974"},{"1":"PC2","2":"0.3678","3":"0.1218"},{"1":"PC3","2":"0.0931","3":"0.0806"},{"1":"PC4","2":"0.0281","3":"0.0002"},{"1":"PC5","2":"0.0108","3":"0.0000"},{"1":"PC6","2":"0.0008","3":"0.0000"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>compare <span class="sc">|&gt;</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="sc">-</span>component, <span class="at">names_to =</span> <span class="st">"variant"</span>, <span class="at">values_to =</span> <span class="st">"share"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> component, <span class="at">y =</span> share, <span class="at">fill =</span> variant)) <span class="sc">+</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">position =</span> <span class="st">"dodge"</span>) <span class="sc">+</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#6366f1"</span>, <span class="st">"#f59e0b"</span>)) <span class="sc">+</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Частки дисперсії компонент: стандартизація vs лише центрування"</span>,</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"Частка дисперсії"</span>, <span class="at">fill =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lab_4_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>loadings_noscale <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(pca_noscale<span class="sc">$</span>rotation, <span class="at">rownames =</span> <span class="st">"feature"</span>)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>loadings_noscale</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["feature"],"name":[1],"type":["chr"],"align":["left"]},{"label":["PC1"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["PC2"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["PC3"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["PC4"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["PC5"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["PC6"],"name":[7],"type":["dbl"],"align":["right"]}],"data":[{"1":"pop_mln","2":"0.2130237992","3":"-0.0534861077","4":"0.975540903","5":"0.0030730704","6":"0.008058407","7":"-0.0023793412"},{"1":"urban_share","2":"-0.0029992619","3":"0.0180712107","4":"0.010220408","5":"-0.0111269580","6":"-0.987162592","7":"0.1579436210"},{"1":"fertility","2":"0.0139285406","3":"-0.0893676305","4":"-0.010955885","5":"0.9956969620","6":"-0.010946486","7":"0.0129276946"},{"1":"median_age","2":"-0.1579020697","3":"0.9791385822","4":"0.087721879","5":"0.0912880459","6":"0.017834074","7":"-0.0028077981"},{"1":"mig_rate","2":"-0.9640976942","3":"-0.1735302695","4":"0.200995605","5":"0.0001398281","6":"0.001880512","7":"0.0003038461"},{"1":"growth_rate","2":"-0.0006584114","3":"-0.0009882683","4":"-0.001047002","5":"0.0109899974","6":"-0.158125468","7":"-0.9873565972"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>Без масштабування PC1 поглинає 80% дисперсії і повністю визначається однією ознакою pop_mln (її дисперсія на порядки більша за решту). Інші ознаки практично не впливають на структуру компонент. Це підтверджує обґрунтування з Кроку 5: для ознак у різних одиницях вимірювання стандартизація обов’язкова.</p>
+</section>
+<section id="крок-13.-підготовка-артефактів-для-лр5" class="level3">
+<h3 class="anchored" data-anchor-id="крок-13.-підготовка-артефактів-для-лр5">Крок 13. Підготовка артефактів для ЛР5</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(scores,        <span class="st">"data/processed/lab4_pca_scores.csv"</span>)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(variance_table,<span class="st">"data/processed/lab4_pca_variance.csv"</span>)</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(loadings,      <span class="st">"data/processed/lab4_pca_loadings.csv"</span>)</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(analysis_data, <span class="st">"data/processed/lab4_features.csv"</span>)</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">"figures/lab4_scree.png"</span>,   p_scree,    <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">5</span>)</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">"figures/lab4_loadings.png"</span>,p_loadings, <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">5</span>)</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">"figures/lab4_scores.png"</span>,  p_scores,   <span class="at">width =</span> <span class="dv">9</span>, <span class="at">height =</span> <span class="dv">6</span>)</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">"figures/lab4_reconstruction.png"</span>, p_recon, <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Для кластеризації у ЛР5 координати компонент обираються з урахуванням поясненої дисперсії: у lab4_pca_scores.csv збережено PC1–PC2 для візуалізації, за потреби кількість компонент збільшується до 2.</p>
+</section>
+<section id="крок-14.-фіксація-середовища" class="level3">
+<h3 class="anchored" data-anchor-id="крок-14.-фіксація-середовища">Крок 14. Фіксація середовища</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>R version 4.6.2 (2026-10-29 ucrt)
+Platform: x86_64-w64-mingw32/x64
+Running under: Windows 10 x64 (build 19044)
+
+Matrix products: default
+  LAPACK version 3.12.1
+
+locale:
+[1] LC_COLLATE=Russian_Russia.utf8  LC_CTYPE=Russian_Russia.utf8   
+[3] LC_MONETARY=Russian_Russia.utf8 LC_NUMERIC=C                   
+[5] LC_TIME=Russian_Russia.utf8    
+
+time zone: Europe/Kiev
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+ [1] jsonlite_2.0.0  lubridate_1.9.5 forcats_1.0.1   stringr_1.6.0  
+ [5] dplyr_1.2.1     purrr_1.2.2     readr_2.2.0     tidyr_1.3.2    
+ [9] tibble_3.3.1    ggplot2_4.0.3   tidyverse_2.0.0
+
+loaded via a namespace (and not attached):
+ [1] bit_4.6.0          gtable_0.3.6       crayon_1.5.3       compiler_4.6.2    
+ [5] tidyselect_1.2.1   parallel_4.6.2     textshaping_1.0.5  systemfonts_1.3.2 
+ [9] scales_1.4.0       yaml_2.3.12        fastmap_1.2.0      R6_2.6.1          
+[13] labeling_0.4.3     generics_0.1.4     knitr_1.52         pillar_1.11.1     
+[17] RColorBrewer_1.1-3 tzdb_0.5.0         rlang_1.3.0        stringi_1.8.9     
+[21] xfun_0.62          S7_0.2.2           bit64_4.8.6        otel_0.3.0        
+[25] viridisLite_0.4.3  timechange_0.4.0   cli_3.6.6          withr_3.0.3       
+[29] magrittr_2.0.5     digest_0.6.39      grid_4.6.2         vroom_1.7.1       
+[33] hms_1.1.4          lifecycle_1.0.5    vctrs_0.7.3        evaluate_1.0.5    
+[37] glue_1.8.1         farver_2.1.2       ragg_1.5.2         rmarkdown_2.32    
+[41] tools_4.6.2        pkgconfig_2.0.3    htmltools_0.5.9   </code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="висновок" class="level2">
+<h2 class="anchored" data-anchor-id="висновок">Висновок</h2>
+<ol type="1">
+<li><strong>Матриця ознак.</strong> Сформовано матрицю <span class="math inline">\(n \times p\)</span> на рівні «рік» (<span class="math inline">\(n = 16\)</span> повних спостережень, <span class="math inline">\(p = 6\)</span> ознак), з двома похідними безрозмірними ознаками (urban_share, mig_rate). Перевірено відсутність дублікатів ключа та константних стовпців; єдиний пропуск (1950 р.) усунено відбором повних рядків без імпутації.</li>
+<li><strong>Масштабування.</strong> Обґрунтовано scale. = TRUE: ознаки вимірюються в різних одиницях (млн осіб, роки, частки, проміле), і без стандартизації PC1 поглинала б 80% дисперсії, зводячись до однієї ознаки pop_mln.</li>
+<li><strong>Структура компонент.</strong> Перша компонента (≈ 50% дисперсії) інтерпретується як «демографічний перехід» — спільний тренд старіння, урбанізації та зниження народжуваності; друга (≈ 37%) — як міграційна складова. Проєкція років на PC1–PC2 відтворює хронологію без жодної часової змінної, що підтверджує змістовність компонент.</li>
+<li><strong>Кількість компонент.</strong> Двовимірна проєкція пояснює ≈ 87% дисперсії і годиться для візуалізації; для подальшого аналізу за критерієм 80% потрібно 2 компонент. Це різні критерії для різних цілей.</li>
+<li><strong>Втрати інформації.</strong> Реконструкційна похибка монотонно спадає до нуля при <span class="math inline">\(k = p\)</span>: PCA — лінійний метод, і вся втрачена при зниженні розмірності дисперсія дорівнює сумі відкинутих власних значень. Нелінійні структури (якщо б вони були) PCA не відтворив би.</li>
+<li><strong>Обмеження.</strong> PCA зберігає напрям максимальної лінійної варіації, а не групову структуру; видимі скупчення на площині PC1–PC2 не є доказом кластерів — їх наявність має підтвердити окремий кластерний аналіз (ЛР5). Знак компонент довільний, а PCA не встановлює причинності: сильні кореляції тут значною мірою пояснюються спільним часовим трендом.</li>
+</ol>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+      window.quartoDecorateExternalLinks = function (root) {
+     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+          if (!link.classList.contains('no-external-icon')) {
+          }
+        }
+      }
+      };
+      window.quartoDecorateExternalLinks(window.document);
+    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
+    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
+    const hideOnEscAndFocusOut = {
+      name: 'hideOnEscAndFocusOut',
+      defaultValue: true,
+      fn(instance) {
+        const dismiss = () => {
+          // A show scheduled by the trigger delay would otherwise reopen it
+          instance.clearDelayTimeouts();
+          instance.hide();
+        };
+        const onKeyDown = (event) => {
+          if (event.key !== 'Escape') {
+            return;
+          }
+          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
+          // except an open reveal.js slide menu, which Esc should close too.
+          // The menu handles keys only when its keyboard option is on.
+          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
+            window.Reveal.getConfig().menu?.keyboard !== false;
+          if (!menuHandlesEsc) {
+            event.stopPropagation();
+          }
+          if (instance.popper.contains(window.document.activeElement)) {
+            // Disabled while refocusing so the focus trigger does not reopen it
+            instance.disable();
+            instance.reference.focus();
+            instance.enable();
+          }
+          dismiss();
+        };
+        const onFocusOut = (event) => {
+          const target = event.relatedTarget;
+          if (target && !instance.reference.contains(target) &&
+              !instance.popper.contains(target)) {
+            dismiss();
+          }
+        };
+        // On the trigger too: a click trigger (code-annotations: select) has no
+        // blur handling. Attached for the instance's lifetime so leaving the
+        // trigger also cancels a show still pending on the trigger delay.
+        instance.reference.addEventListener('focusout', onFocusOut);
+        return {
+          onShow() {
+            window.document.addEventListener('keydown', onKeyDown, true);
+            instance.popper.addEventListener('focusout', onFocusOut);
+          },
+          onHide() {
+            window.document.removeEventListener('keydown', onKeyDown, true);
+            instance.popper.removeEventListener('focusout', onFocusOut);
+          },
+          onDestroy() {
+            instance.reference.removeEventListener('focusout', onFocusOut);
+          },
+        };
+      },
+    };
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+        plugins: [hideOnEscAndFocusOut],
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          // Each band is positioned against its own containing block, which is
+          // not the offsetParent of the lines, so place it from client rects.
+          const placeBand = (band, firstEl, lastEl, codeBlock) => {
+            const container = band.offsetParent;
+            if (container === null) {
+              return;
+            }
+            const containerRect = container.getBoundingClientRect();
+            // Reveal.js scales slides with a transform, so convert client
+            // pixels back to the CSS pixels of the container.
+            const scale = containerRect.height / container.offsetHeight || 1;
+            const firstRect = firstEl.getBoundingClientRect();
+            const lastRect = lastEl.getBoundingClientRect();
+            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
+            const height = (lastRect.bottom - firstRect.top) / scale;
+            band.style.top = top - 2 + "px";
+            band.style.height = height + 4 + "px";
+            if (codeBlock) {
+              // Without the copy button wrapper, the containing block is wider
+              // than the code block, so span the code block explicitly.
+              const blockRect = codeBlock.getBoundingClientRect();
+              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
+              band.style.width = blockRect.width / scale + "px";
+            }
+          };
+          if (lineIds.length > 0) {
+            const el = window.document.getElementById(lineIds[0]);
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const parent = el.parentElement.parentElement;
+            // cook up a div (if necessary) and position it
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            placeBand(gutterDiv, el, lastEl);
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+  <script type="application/javascript">
+  window.quartoScrollableRegionsLabels = {"code":"Scrollable code","output":"Scrollable output"};
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<script src="lab_4_files/libs/quarto-html/zenscroll-min.js"></script>
+</body></html>
