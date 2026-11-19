@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="uk" xml:lang="uk"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.11.9">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -69,15 +69,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="lab_4_files/libs/clipboard/clipboard.min.js"></script>
 <script src="lab_4_files/libs/quarto-html/quarto.js" type="module"></script>
 <script src="lab_4_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="lab_4_files/libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
 <script src="lab_4_files/libs/quarto-html/popper.min.js"></script>
 <script src="lab_4_files/libs/quarto-html/tippy.umd.min.js"></script>
 <script src="lab_4_files/libs/quarto-html/anchor.min.js"></script>
 <link href="lab_4_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="lab_4_files/libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="lab_4_files/libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="lab_4_files/libs/bootstrap/bootstrap.min.js"></script>
 <link href="lab_4_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="lab_4_files/libs/bootstrap/bootstrap-4f411e114d711e524ac8968afe1debc7.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="lab_4_files/libs/bootstrap/bootstrap-62e2d20df198e8a01bb734742f2e28cf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <style>html{ scroll-behavior: smooth; }</style>
 <link href="lab_4_files/libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
 
@@ -116,11 +115,11 @@ window.Quarto = {
 
 </head>
 
-<body class="quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a>
+<body class="quarto-light">
 
 <div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
 <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-  <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active">
+  <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
@@ -146,7 +145,7 @@ window.Quarto = {
   </ul>
 </nav>
 </div>
-<main class="content" id="quarto-document-content" tabindex="-1">
+<main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
@@ -172,7 +171,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">14.11.2026</p>
+      <p class="date">19.11.2026</p>
     </div>
   </div>
   
@@ -429,7 +428,7 @@ Cumulative Proportion  0.4994 0.8672 0.96027 0.98841 0.99924 1.00000</code></pre
 </div>
 </div>
 </div>
-<p><strong>Порівняння двох критеріїв.</strong> Проєкція на площину PC1–PC2 пояснює лише 87% дисперсії — для <em>візуалізації</em> цього достатньо, щоб побачити основну структуру, але 13% варіації губиться. Для подальшого кількісного аналізу (наприклад, кластеризації у ЛР5) за критерієм 80% потрібно 2 компонент (накопичено 87%). Це два різні рішення, які не слід ототожнювати.</p>
+<p>Проєкція на площину PC1–PC2 пояснює лише 87% дисперсії — для <em>візуалізації</em> цього достатньо, щоб побачити основну структуру, але 13% варіації губиться. Для подальшого кількісного аналізу (наприклад, кластеризації у ЛР5) за критерієм 80% потрібно 2 компонент (накопичено 87%). Це два різні рішення, які не слід ототожнювати.</p>
 </section>
 <section id="крок-8.-інтерпретація-навантажень" class="level3">
 <h3 class="anchored" data-anchor-id="крок-8.-інтерпретація-навантажень">Крок 8. Інтерпретація навантажень</h3>
@@ -463,7 +462,7 @@ Cumulative Proportion  0.4994 0.8672 0.96027 0.98841 0.99924 1.00000</code></pre
 </div>
 </div>
 </div>
-<p><em>Інтерпретація.</em> PC1 — це <strong>«демографічний перехід»</strong>: однаковими за модулем навантаженнями він поєднує ознаки, які монотонно змінювалися з часом (median_age, urban_share, fertility, growth_rate, pop_mln). Знак довільний; за обраного розв’язку роки з високою народжуваністю та молодим населенням мають низькі значення PC1, сучасні роки — високі. PC2 навантажена насамперед на mig_rate та growth_rate, тобто відображає варіацію міграційної складової, яка не пояснюється спільним трендом. PC1 і PC2 слід читати як <em>нові синтетичні напрями</em>, а не як вихідні змінні.</p>
+<p>PC1 — це <strong>«демографічний перехід»</strong>: однаковими за модулем навантаженнями він поєднує ознаки, які монотонно змінювалися з часом (median_age, urban_share, fertility, growth_rate, pop_mln). Знак довільний; за обраного розв’язку роки з високою народжуваністю та молодим населенням мають низькі значення PC1, сучасні роки — високі. PC2 навантажена насамперед на mig_rate та growth_rate, тобто відображає варіацію міграційної складової, яка не пояснюється спільним трендом. PC1 і PC2 слід читати як <em>нові синтетичні напрями</em>, а не як вихідні змінні.</p>
 </section>
 <section id="крок-9.-двовимірна-проєкція-спостережень" class="level3">
 <h3 class="anchored" data-anchor-id="крок-9.-двовимірна-проєкція-спостережень">Крок 9. Двовимірна проєкція спостережень</h3>
@@ -492,7 +491,7 @@ Cumulative Proportion  0.4994 0.8672 0.96027 0.98841 0.99924 1.00000</code></pre
 </div>
 </div>
 </div>
-<p><em>Інтерпретація:</em> точки впорядковані вздовж PC1 майже строго за часом — PCA «розпізнав» часовий тренд без жодної часової змінної. Відхилення від траєкторії (PC2) припадає на роки з аномальною міграцією. На графіку видно послідовність і плавні зміщення, але <strong>зорові скупчення не є кластерами</strong>: кластерний аналіз (ЛР5) вимагає окремої процедури з формальним критерієм.</p>
+<p>Точки впорядковані вздовж PC1 майже строго за часом — PCA «розпізнав» часовий тренд без жодної часової змінної. Відхилення від траєкторії (PC2) припадає на роки з аномальною міграцією. На графіку видно послідовність і плавні зміщення, але <strong>зорові скупчення не є кластерами</strong>: кластерний аналіз (ЛР5) вимагає окремої процедури з формальним критерієм.</p>
 </section>
 <section id="крок-10.-звязок-pca-із-svd" class="level3">
 <h3 class="anchored" data-anchor-id="крок-10.-звязок-pca-із-svd">Крок 10. Зв’язок PCA із SVD</h3>
@@ -615,7 +614,7 @@ Cumulative Proportion  0.4994 0.8672 0.96027 0.98841 0.99924 1.00000</code></pre
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>R version 4.6.2 (2026-10-29 ucrt)
+<pre><code>R version 4.6.1 (2026-06-24 ucrt)
 Platform: x86_64-w64-mingw32/x64
 Running under: Windows 10 x64 (build 19044)
 
@@ -639,17 +638,17 @@ other attached packages:
  [9] tibble_3.3.1    ggplot2_4.0.3   tidyverse_2.0.0
 
 loaded via a namespace (and not attached):
- [1] bit_4.6.0          gtable_0.3.6       crayon_1.5.3       compiler_4.6.2    
- [5] tidyselect_1.2.1   parallel_4.6.2     textshaping_1.0.5  systemfonts_1.3.2 
- [9] scales_1.4.0       yaml_2.3.12        fastmap_1.2.0      R6_2.6.1          
-[13] labeling_0.4.3     generics_0.1.4     knitr_1.52         pillar_1.11.1     
-[17] RColorBrewer_1.1-3 tzdb_0.5.0         rlang_1.3.0        stringi_1.8.9     
-[21] xfun_0.62          S7_0.2.2           bit64_4.8.6        otel_0.3.0        
-[25] viridisLite_0.4.3  timechange_0.4.0   cli_3.6.6          withr_3.0.3       
-[29] magrittr_2.0.5     digest_0.6.39      grid_4.6.2         vroom_1.7.1       
-[33] hms_1.1.4          lifecycle_1.0.5    vctrs_0.7.3        evaluate_1.0.5    
-[37] glue_1.8.1         farver_2.1.2       ragg_1.5.2         rmarkdown_2.32    
-[41] tools_4.6.2        pkgconfig_2.0.3    htmltools_0.5.9   </code></pre>
+ [1] generics_0.1.4     stringi_1.8.9      hms_1.1.4          digest_0.6.39     
+ [5] magrittr_2.0.5     evaluate_1.0.5     grid_4.6.1         timechange_0.4.0  
+ [9] RColorBrewer_1.1-3 fastmap_1.2.0      viridisLite_0.4.3  scales_1.4.0      
+[13] textshaping_1.0.5  cli_3.6.6          rlang_1.3.0        crayon_1.5.3      
+[17] bit64_4.8.6        withr_3.0.3        yaml_2.3.12        otel_0.2.0        
+[21] tools_4.6.1        parallel_4.6.1     tzdb_0.5.0         vctrs_0.7.3       
+[25] R6_2.6.1           lifecycle_1.0.5    bit_4.6.0          vroom_1.7.1       
+[29] ragg_1.5.2         pkgconfig_2.0.3    pillar_1.11.1      gtable_0.3.6      
+[33] glue_1.8.1         systemfonts_1.3.2  xfun_0.60          tidyselect_1.2.1  
+[37] rstudioapi_0.19.0  knitr_1.52         farver_2.1.2       htmltools_0.5.9   
+[41] rmarkdown_2.32     labeling_0.4.3     compiler_4.6.1     S7_0.2.2          </code></pre>
 </div>
 </div>
 </section>
@@ -746,8 +745,7 @@ loaded via a namespace (and not attached):
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
       // Inspect non-navigation links and adorn them if external
-      window.quartoDecorateExternalLinks = function (root) {
-     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
       for (var i=0; i<links.length; i++) {
         const link = links[i];
         if (!isInternal(link.href)) {
@@ -756,69 +754,8 @@ loaded via a namespace (and not attached):
           if (link.dataset.originalHref !== undefined) {
             link.href = link.dataset.originalHref;
           }
-          if (!link.classList.contains('no-external-icon')) {
-          }
         }
       }
-      };
-      window.quartoDecorateExternalLinks(window.document);
-    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
-    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
-    const hideOnEscAndFocusOut = {
-      name: 'hideOnEscAndFocusOut',
-      defaultValue: true,
-      fn(instance) {
-        const dismiss = () => {
-          // A show scheduled by the trigger delay would otherwise reopen it
-          instance.clearDelayTimeouts();
-          instance.hide();
-        };
-        const onKeyDown = (event) => {
-          if (event.key !== 'Escape') {
-            return;
-          }
-          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
-          // except an open reveal.js slide menu, which Esc should close too.
-          // The menu handles keys only when its keyboard option is on.
-          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
-            window.Reveal.getConfig().menu?.keyboard !== false;
-          if (!menuHandlesEsc) {
-            event.stopPropagation();
-          }
-          if (instance.popper.contains(window.document.activeElement)) {
-            // Disabled while refocusing so the focus trigger does not reopen it
-            instance.disable();
-            instance.reference.focus();
-            instance.enable();
-          }
-          dismiss();
-        };
-        const onFocusOut = (event) => {
-          const target = event.relatedTarget;
-          if (target && !instance.reference.contains(target) &&
-              !instance.popper.contains(target)) {
-            dismiss();
-          }
-        };
-        // On the trigger too: a click trigger (code-annotations: select) has no
-        // blur handling. Attached for the instance's lifetime so leaving the
-        // trigger also cancels a show still pending on the trigger delay.
-        instance.reference.addEventListener('focusout', onFocusOut);
-        return {
-          onShow() {
-            window.document.addEventListener('keydown', onKeyDown, true);
-            instance.popper.addEventListener('focusout', onFocusOut);
-          },
-          onHide() {
-            window.document.removeEventListener('keydown', onKeyDown, true);
-            instance.popper.removeEventListener('focusout', onFocusOut);
-          },
-          onDestroy() {
-            instance.reference.removeEventListener('focusout', onFocusOut);
-          },
-        };
-      },
-    };
     function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
       const config = {
         allowHTML: true,
@@ -832,7 +769,6 @@ loaded via a namespace (and not attached):
         interactiveBorder: 10,
         theme: 'quarto',
         placement: 'bottom-start',
-        plugins: [hideOnEscAndFocusOut],
       };
       if (contentFn) {
         config.content = contentFn;
@@ -995,54 +931,44 @@ loaded via a namespace (and not attached):
           const lineIds = lines.map((line) => {
             return targetCell + "-" + line;
           })
-          // Each band is positioned against its own containing block, which is
-          // not the offsetParent of the lines, so place it from client rects.
-          const placeBand = (band, firstEl, lastEl, codeBlock) => {
-            const container = band.offsetParent;
-            if (container === null) {
-              return;
-            }
-            const containerRect = container.getBoundingClientRect();
-            // Reveal.js scales slides with a transform, so convert client
-            // pixels back to the CSS pixels of the container.
-            const scale = containerRect.height / container.offsetHeight || 1;
-            const firstRect = firstEl.getBoundingClientRect();
-            const lastRect = lastEl.getBoundingClientRect();
-            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
-            const height = (lastRect.bottom - firstRect.top) / scale;
-            band.style.top = top - 2 + "px";
-            band.style.height = height + 4 + "px";
-            if (codeBlock) {
-              // Without the copy button wrapper, the containing block is wider
-              // than the code block, so span the code block explicitly.
-              const blockRect = codeBlock.getBoundingClientRect();
-              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
-              band.style.width = blockRect.width / scale + "px";
-            }
-          };
+          let top = null;
+          let height = null;
+          let parent = null;
           if (lineIds.length > 0) {
-            const el = window.document.getElementById(lineIds[0]);
-            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-            const parent = el.parentElement.parentElement;
-            // cook up a div (if necessary) and position it
-            let div = window.document.getElementById("code-annotation-line-highlight");
-            if (div === null) {
-              div = window.document.createElement("div");
-              div.setAttribute("id", "code-annotation-line-highlight");
-              div.style.position = 'absolute';
-              parent.appendChild(div);
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
             }
-            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
-            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-            if (gutterDiv === null) {
-              gutterDiv = window.document.createElement("div");
-              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-              gutterDiv.style.position = 'absolute';
-              const codeCell = window.document.getElementById(targetCell);
-              const gutter = codeCell.querySelector('.code-annotation-gutter');
-              gutter.appendChild(gutterDiv);
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
             }
-            placeBand(gutterDiv, el, lastEl);
             selectedAnnoteEl = annoteEl;
           }
         };
@@ -1140,9 +1066,6 @@ loaded via a namespace (and not attached):
       }
     }
   });
-  </script>
-  <script type="application/javascript">
-  window.quartoScrollableRegionsLabels = {"code":"Scrollable code","output":"Scrollable output"};
   </script>
 </div> <!-- /content -->
 

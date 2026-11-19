@@ -108,6 +108,7 @@ fert_ts |>
 
 ```{r}
 fit <- auto.arima(fert_ts, seasonal=FALSE)
+fit
 ```
 Модель прогнозу має наступний вигляд.
 
