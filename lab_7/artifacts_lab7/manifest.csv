@@ -1,0 +1,2 @@
+model_id,data,task,chosen_model,predictors,target_levels,split_seed,cv,metric,test_accuracy,r_version,tidymodels_version,md5
+iris_best_v1,iris (150),3-class,multinom,"Sepal.Length, Sepal.Width, Petal.Length, Petal.Width","setosa, versicolor, virginica",12345,5-fold stratified,hand_till roc_auc,1,4.6.2,1.5.0,34af8630a4245f73661107c209931571
