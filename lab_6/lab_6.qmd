@@ -1,0 +1,129 @@
+---
+title: "Лабораторна робота №6. Побудова регресійних моделей і прогнозування"
+description: "Документ зроблено в [Quarto](https://quarto.org/)"
+author: "&copy; Захаров Максим, 2026"
+date: today
+date-format: "DD.MM.YYYY"
+lang: uk
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    theme: cosmo
+    smooth-scroll: true
+    code-fold: false
+    df-print: paged
+execute:
+  echo: true
+  warning: false
+  message: false
+editor: source
+---
+
+## Хід роботи
+
+```{r}
+#install.packages(c("tidyverse", "jsonlite"))
+#install.packages("GGally")
+
+library(GGally)
+library(tidyverse)
+library(jsonlite)
+
+dir.create("figures", showWarnings = FALSE)
+dir.create("data/processed", recursive = TRUE, showWarnings = FALSE)
+```
+
+### Крок 1. Завантаження підготовлених даних
+
+```{r}
+demo_path <- "data/raw/median_year.json"
+
+if (!file.exists(demo_path)) {
+  stop("Не знайдено файл")
+}
+
+demo_all <- fromJSON(demo_path)
+
+data <- demo_all |>
+  select(year, medianAge, fertilityRate)
+
+data
+```
+
+### Крок 2. Опис метаданих
+
+`year` - рік.
+
+`fertilityRate` — коефіцієнт народжуваності ((кількість живонароджених за рік / середня чисельність населення) × 1000).
+
+`medianAge` - медіанний вік населення (вік, що ділить населення на дві рівні половини).
+
+```{r}
+data |>
+  select(medianAge, fertilityRate, year) |>
+  cor() |>
+  knitr::kable(
+    caption = "Таблиця оцінок коефіцієнтів кореляції"
+  )
+```
+
+З таблиці видно, що між `fertilityRate` та `medianAge` існує сильний від'ємний зв'язок: чим нижча народжуваність, тим старіше населення.
+
+```{r}
+data |>
+  select(year,medianAge:fertilityRate) |>
+  ggpairs()
+```
+
+```{r}
+model1 <- lm(fertilityRate ~ medianAge, data = data)
+summary(model1)
+model2 <- lm(medianAge ~ year, data = data)
+summary(model2)
+model3 <- lm(fertilityRate ~ year, data = data)
+summary(model3)
+```
+
+Рівняння моделі: `medianAge` = b0 + b1 × `fertilityRate`. Коефіцієнт b₁ від'ємний - зі зниженням народжуваності на 1 пункт медіанний вік зростає приблизно на \|b1\| років.
+
+```{r}
+plot(model1)
+plot(model2)
+plot(model3)
+```
+
+Діагностика моделі: графік «Residuals vs Fitted» перевіряє лінійність (точки мають розподілятися хаотично навколо нульової лінії), Q-Q графік - нормальність залишків (точки мають лежати на діагоналі), «Scale-Location» - гомоскедастичність (постійність дисперсії), а останній графік показує вплив окремих спостережень.
+
+### Крок 3. Побудуємо лінію тренда
+
+```{r}
+dir.create("figures", showWarnings = FALSE)
+
+# Народжуваність 
+ggplot(data, aes(medianAge,fertilityRate)) +
+  geom_point(colour = "#E69F00") +
+  geom_smooth(method = "lm", colour = "#E69F00", se = TRUE, fullrange = TRUE) +
+  labs(title = "Медіаний вік та коеф. народжуваності", x = "", y = "Fertility Rate") +
+  theme_minimal()
+
+# Народжуваність
+ggplot(data, aes(year, fertilityRate)) +
+  geom_point(colour = "#E69F00") +
+  geom_smooth(method = "lm", colour = "#E69F00", se = TRUE, fullrange = TRUE) +
+  labs(title = "Коеф. народжуваності", x = "Рік", y = NULL) +
+  theme_minimal()
+
+ggsave("figures/forecast_fertility.png", width = 7, height = 4, dpi = 150)
+
+# Медіанний вік
+ggplot(data, aes(year, medianAge)) +
+  geom_point(colour = "#0072B2") +
+  geom_smooth(method = "lm", colour = "#0072B2", se = TRUE, fullrange = TRUE) +
+  labs(title = "Медіанний вік", x = "Рік", y = NULL) +
+  theme_minimal()
+
+ggsave("figures/forecast_median_age.png", width = 7, height = 4, dpi = 150)
+```
+
+Відповідно до моделі, народжуваність продовжить знижуватися, а медіанний вік — зростати, тобто населення старітиме.
