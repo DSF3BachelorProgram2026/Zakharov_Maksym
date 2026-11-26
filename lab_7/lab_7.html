@@ -95,8 +95,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#завдання" id="toc-завдання" class="nav-link active" data-scroll-target="#завдання">Завдання</a></li>
-  <li><a href="#хід-роботи" id="toc-хід-роботи" class="nav-link" data-scroll-target="#хід-роботи">Хід роботи</a>
+  <li><a href="#завдання" id="toc-завдання" class="nav-link active" data-scroll-target="#завдання">Завдання</a>
   <ul class="collapse">
   <li><a href="#крок-1.-підготовка-середовища" id="toc-крок-1.-підготовка-середовища" class="nav-link" data-scroll-target="#крок-1.-підготовка-середовища">Крок 1. Підготовка середовища</a></li>
   <li><a href="#крок-2.-дані-iris-і-стратифіковане-розбиття" id="toc-крок-2.-дані-iris-і-стратифіковане-розбиття" class="nav-link" data-scroll-target="#крок-2.-дані-iris-і-стратифіковане-розбиття">Крок 2. Дані iris і стратифіковане розбиття</a></li>
@@ -146,7 +145,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">22.11.2026</p>
+      <p class="date">23.11.2026</p>
     </div>
   </div>
   
@@ -169,11 +168,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>вибір моделі за внутрішньою 5-кратною CV на train (тест не використовується);</li>
 <li>один фінальний прогноз на тесті;</li>
 <li>збереження найкращого workflow у RDS, відновлення, перевірка прогнозів;</li>
-<li>маніфест артефакту; SQLite BLOB — за бажанням.</li>
+<li>маніфест артефакту; ## Хід роботи</li>
 </ol>
-</section>
-<section id="хід-роботи" class="level2">
-<h2 class="anchored" data-anchor-id="хід-роботи">Хід роботи</h2>
 <section id="крок-1.-підготовка-середовища" class="level3">
 <h3 class="anchored" data-anchor-id="крок-1.-підготовка-середовища">Крок 1. Підготовка середовища</h3>
 <div class="cell">
@@ -557,7 +553,7 @@ Prediction   setosa versicolor virginica
 <div class="cell-output-display">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["size"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["md5"],"name":[2],"type":["chr"],"align":["left"]}],"data":[{"1":"9076","2":"34af8630a4245f73661107c209931571","_rn_":"artifacts_lab7/iris_best_workflow.rds"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["size"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["md5"],"name":[2],"type":["chr"],"align":["left"]}],"data":[{"1":"9072","2":"d0372b4f5d46e6e7da270fa99e44a388","_rn_":"artifacts_lab7/iris_best_workflow.rds"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
@@ -606,7 +602,7 @@ Prediction   setosa versicolor virginica
 <div class="cell-output-display">
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["model_id"],"name":[1],"type":["chr"],"align":["left"]},{"label":["data"],"name":[2],"type":["chr"],"align":["left"]},{"label":["task"],"name":[3],"type":["chr"],"align":["left"]},{"label":["chosen_model"],"name":[4],"type":["chr"],"align":["left"]},{"label":["predictors"],"name":[5],"type":["chr"],"align":["left"]},{"label":["target_levels"],"name":[6],"type":["chr"],"align":["left"]},{"label":["split_seed"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["cv"],"name":[8],"type":["chr"],"align":["left"]},{"label":["metric"],"name":[9],"type":["chr"],"align":["left"]},{"label":["test_accuracy"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["r_version"],"name":[11],"type":["chr"],"align":["left"]},{"label":["tidymodels_version"],"name":[12],"type":["chr"],"align":["left"]},{"label":["md5"],"name":[13],"type":["chr"],"align":["left"]}],"data":[{"1":"iris_best_v1","2":"iris (150)","3":"3-class","4":"multinom","5":"Sepal.Length, Sepal.Width, Petal.Length, Petal.Width","6":"setosa, versicolor, virginica","7":"12345","8":"5-fold stratified","9":"hand_till roc_auc","10":"1","11":"4.6.2","12":"1.5.0","13":"34af8630a4245f73661107c209931571"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["model_id"],"name":[1],"type":["chr"],"align":["left"]},{"label":["data"],"name":[2],"type":["chr"],"align":["left"]},{"label":["task"],"name":[3],"type":["chr"],"align":["left"]},{"label":["chosen_model"],"name":[4],"type":["chr"],"align":["left"]},{"label":["predictors"],"name":[5],"type":["chr"],"align":["left"]},{"label":["target_levels"],"name":[6],"type":["chr"],"align":["left"]},{"label":["split_seed"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["cv"],"name":[8],"type":["chr"],"align":["left"]},{"label":["metric"],"name":[9],"type":["chr"],"align":["left"]},{"label":["test_accuracy"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["r_version"],"name":[11],"type":["chr"],"align":["left"]},{"label":["tidymodels_version"],"name":[12],"type":["chr"],"align":["left"]},{"label":["md5"],"name":[13],"type":["chr"],"align":["left"]}],"data":[{"1":"iris_best_v1","2":"iris (150)","3":"3-class","4":"multinom","5":"Sepal.Length, Sepal.Width, Petal.Length, Petal.Width","6":"setosa, versicolor, virginica","7":"12345","8":"5-fold stratified","9":"hand_till roc_auc","10":"1","11":"4.6.2","12":"1.5.0","13":"d0372b4f5d46e6e7da270fa99e44a388"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
